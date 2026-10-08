@@ -1,0 +1,7 @@
+*.caipack
+!tests/fixtures/packs/*.caipack
+.caipack-work/
+.venv/
+__pycache__/
+.pytest_cache/
+*.egg-info

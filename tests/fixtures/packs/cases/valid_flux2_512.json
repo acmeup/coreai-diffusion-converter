@@ -1,0 +1,276 @@
+{
+ "pack": {
+  "format": "caipack",
+  "format_version": 1,
+  "id": "flux2-sample-512",
+  "name": "Sample FLUX2 512",
+  "description": "",
+  "family": "flux2",
+  "pipeline": "flux2",
+  "target": "ios",
+  "supported_sizes": [
+   512
+  ],
+  "default_size": 512,
+  "default_steps": 4,
+  "max_steps": 8,
+  "guidance_scale": 1.0,
+  "scheduler": "flow_match_euler",
+  "precision": "4bit",
+  "compute_precision": "float16",
+  "lazy_model_loading": true,
+  "excluded_architectures": [],
+  "assets": [
+   "TextEncoder.aimodel",
+   "Transformer_512.aimodel",
+   "VAEDecoder_half.aimodel",
+   "metadata.json",
+   "tokenizer/chat_template.jinja",
+   "tokenizer/config.json",
+   "tokenizer/tokenizer.json",
+   "tokenizer/tokenizer_config.json",
+   "vae_bn_mean.npy",
+   "vae_bn_var.npy"
+  ],
+  "source": {
+   "kind": "hf",
+   "ref": "example-org/example-model",
+   "revision": "0000000000000000000000000000000000000000"
+  },
+  "conversion": {
+   "clip_skip": 1,
+   "vae": null,
+   "prediction_type": null
+  },
+  "license": {
+   "name": "CreativeML OpenRAIL-M",
+   "file": "LICENSE",
+   "notice_file": null
+  },
+  "attribution": "",
+  "converter": {
+   "name": "coreai-diffusion-converter",
+   "version": "0.1.0",
+   "exporter": "apple/coreai-models@7359dbcf6c3b"
+  },
+  "created_at": "2026-10-09T12:00:00Z",
+  "files": [
+   {
+    "path": "CHANGES.md",
+    "size": 500,
+    "sha256": "d975bf659606195d2165918f93e1cf680ef68ea3c9cab994f033705fea8238b2"
+   },
+   {
+    "path": "LICENSE",
+    "size": 2000,
+    "sha256": "c693279643b8cd5d248172d9c22cb7cf4ed163a3c98c8a3f69c2717edd3eacb7"
+   },
+   {
+    "path": "TextEncoder.aimodel/main.hash",
+    "size": 64,
+    "sha256": "5211e76971a2fc3305a0da45666acecaf929c8210a98446a2b3496f27f1a6e46"
+   },
+   {
+    "path": "TextEncoder.aimodel/main.mlirb",
+    "size": 1000,
+    "sha256": "a24d3060eaec5e7ea690c38796aaf15315e905e9a8788b7cee02b4c0abb83736"
+   },
+   {
+    "path": "TextEncoder.aimodel/metadata.json",
+    "size": 200,
+    "sha256": "4ee12dd03aa142d46099647dfabf9eec4bc41a116a281a1e04c74086e801cc2e"
+   },
+   {
+    "path": "Transformer_512.aimodel/main.hash",
+    "size": 64,
+    "sha256": "4adad3a298eb6c6728b6fa1c3929c5c72922428c049843c45c271c836106b39a"
+   },
+   {
+    "path": "Transformer_512.aimodel/main.mlirb",
+    "size": 1000,
+    "sha256": "64016aa1c654ca21561fabd35d9ffd85a3e7072b34d369b8bcd9b3862bb54203"
+   },
+   {
+    "path": "Transformer_512.aimodel/metadata.json",
+    "size": 200,
+    "sha256": "24c9e271f480acfaf2a04ebe3b7192a7d43b6e2a19e4c72f877d67ee4aca728f"
+   },
+   {
+    "path": "VAEDecoder_half.aimodel/main.hash",
+    "size": 64,
+    "sha256": "be099ff6dcfe475105d137ec9ad8309eaefd3ac14c2df5f7ae0a7cac552e7b00"
+   },
+   {
+    "path": "VAEDecoder_half.aimodel/main.mlirb",
+    "size": 1000,
+    "sha256": "f6c1473e36b9036e98be163c670460b1bce73500c733f5fbf5cadda3c99401bd"
+   },
+   {
+    "path": "VAEDecoder_half.aimodel/metadata.json",
+    "size": 200,
+    "sha256": "5ce4f980119266b15ae7efa23a55453fd46fe5c23dd8b3f48caa15447f66cfa9"
+   },
+   {
+    "path": "metadata.json",
+    "size": 900,
+    "sha256": "12e598daecade60b04e493f45c134fec9287ac7471114d95d1995b4fb651a6c8"
+   },
+   {
+    "path": "tokenizer/chat_template.jinja",
+    "size": 300,
+    "sha256": "875b211b57b90234aa52627712bade933cc3a2a677c79ea5fe73484161cf40e9"
+   },
+   {
+    "path": "tokenizer/config.json",
+    "size": 300,
+    "sha256": "165f6b2ca2e112d05a2d5cf73f178cceabb84eaeab842b82489a2bc5cdedeaa1"
+   },
+   {
+    "path": "tokenizer/tokenizer.json",
+    "size": 300,
+    "sha256": "b87c178459f0ae819d647691287f9c812817e2156df5a74f7a547a23021570f1"
+   },
+   {
+    "path": "tokenizer/tokenizer_config.json",
+    "size": 300,
+    "sha256": "47a6faaf45c44a835738a0ee380db277b2a4db36d56b190b20a369c3f5ad72b0"
+   },
+   {
+    "path": "vae_bn_mean.npy",
+    "size": 4096,
+    "sha256": "dc877c94c29fbb8c0dd4dcfa17e69f6922a897a55f5378fa208e35248396414c"
+   },
+   {
+    "path": "vae_bn_var.npy",
+    "size": 4096,
+    "sha256": "38a3a2f3fc7bc7999bcb5c6503caea7e2611715568413f7b03f4f26f8fa13331"
+   }
+  ]
+ },
+ "metadata": {
+  "metadata_version": "0.2",
+  "kind": "diffusion",
+  "name": "flux2-sample-512",
+  "diffusion": {
+   "type": "flux2",
+   "image_size": 1024,
+   "prediction_type": "flow_matching"
+  }
+ },
+ "entries": [
+  {
+   "path": "pack.json",
+   "size": 1500,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "CHANGES.md",
+   "size": 500,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "LICENSE",
+   "size": 2000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "TextEncoder.aimodel/main.hash",
+   "size": 64,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "TextEncoder.aimodel/main.mlirb",
+   "size": 1000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "TextEncoder.aimodel/metadata.json",
+   "size": 200,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "Transformer_512.aimodel/main.hash",
+   "size": 64,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "Transformer_512.aimodel/main.mlirb",
+   "size": 1000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "Transformer_512.aimodel/metadata.json",
+   "size": 200,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "VAEDecoder_half.aimodel/main.hash",
+   "size": 64,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "VAEDecoder_half.aimodel/main.mlirb",
+   "size": 1000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "VAEDecoder_half.aimodel/metadata.json",
+   "size": 200,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "metadata.json",
+   "size": 900,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer/chat_template.jinja",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer/config.json",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer/tokenizer.json",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer/tokenizer_config.json",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "vae_bn_mean.npy",
+   "size": 4096,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "vae_bn_var.npy",
+   "size": 4096,
+   "is_regular_file": true,
+   "is_compressed": false
+  }
+ ]
+}

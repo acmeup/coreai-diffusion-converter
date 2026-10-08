@@ -1,0 +1,6 @@
+coreai-diffusion-converter
+Copyright 2026 AcmeUp Inc.
+
+This product uses, and adapts at run time without copying, Apple's coreai-models
+(https://github.com/apple/coreai-models), Copyright 2026 Apple Inc., licensed under the
+BSD 3-Clause License. No Apple source code is included in this repository.

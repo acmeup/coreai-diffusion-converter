@@ -1,0 +1,160 @@
+{
+ "pack": {
+  "format": "caipack",
+  "format_version": 1,
+  "id": "flux2-sample-1024",
+  "name": "Sample FLUX2 1024",
+  "description": "",
+  "family": "flux2",
+  "pipeline": "flux2",
+  "target": "macos",
+  "supported_sizes": [
+   512
+  ],
+  "default_size": 512,
+  "default_steps": 4,
+  "max_steps": 8,
+  "guidance_scale": 1.0,
+  "scheduler": "flow_match_euler",
+  "precision": "4bit",
+  "compute_precision": "float16",
+  "lazy_model_loading": true,
+  "excluded_architectures": [],
+  "assets": [
+   "TextEncoder.aimodel",
+   "Transformer.aimodel",
+   "VAEDecoder.aimodel",
+   "metadata.json",
+   "tokenizer/chat_template.jinja",
+   "tokenizer/config.json",
+   "tokenizer/tokenizer.json",
+   "tokenizer/tokenizer_config.json",
+   "vae_bn_mean.npy",
+   "vae_bn_var.npy"
+  ],
+  "source": {
+   "kind": "hf",
+   "ref": "example-org/example-model",
+   "revision": "0000000000000000000000000000000000000000"
+  },
+  "conversion": {
+   "clip_skip": 1,
+   "vae": null,
+   "prediction_type": null
+  },
+  "license": {
+   "name": "CreativeML OpenRAIL-M",
+   "file": "LICENSE",
+   "notice_file": null
+  },
+  "attribution": "",
+  "converter": {
+   "name": "coreai-diffusion-converter",
+   "version": "0.1.0",
+   "exporter": "apple/coreai-models@7359dbcf6c3b"
+  },
+  "created_at": "2026-10-09T12:00:00Z",
+  "files": [
+   {
+    "path": "CHANGES.md",
+    "size": 500,
+    "sha256": "d975bf659606195d2165918f93e1cf680ef68ea3c9cab994f033705fea8238b2"
+   },
+   {
+    "path": "LICENSE",
+    "size": 2000,
+    "sha256": "c693279643b8cd5d248172d9c22cb7cf4ed163a3c98c8a3f69c2717edd3eacb7"
+   },
+   {
+    "path": "TextEncoder.aimodel/main.hash",
+    "size": 64,
+    "sha256": "5211e76971a2fc3305a0da45666acecaf929c8210a98446a2b3496f27f1a6e46"
+   },
+   {
+    "path": "TextEncoder.aimodel/main.mlirb",
+    "size": 1000,
+    "sha256": "a24d3060eaec5e7ea690c38796aaf15315e905e9a8788b7cee02b4c0abb83736"
+   },
+   {
+    "path": "TextEncoder.aimodel/metadata.json",
+    "size": 200,
+    "sha256": "4ee12dd03aa142d46099647dfabf9eec4bc41a116a281a1e04c74086e801cc2e"
+   },
+   {
+    "path": "Transformer.aimodel/main.hash",
+    "size": 64,
+    "sha256": "5801ea5a2e628ce1bc52e5d77aee5a2742b2567761e10f175db5f4b4e731dc60"
+   },
+   {
+    "path": "Transformer.aimodel/main.mlirb",
+    "size": 1000,
+    "sha256": "a9a975a1b4bf890d529a5d160c0ac052c56de683f10119f15d3b193817446003"
+   },
+   {
+    "path": "Transformer.aimodel/metadata.json",
+    "size": 200,
+    "sha256": "352e383c8af6b2eb9ebb70e5dd89a487041f41bcad979206dd98d15cd23af321"
+   },
+   {
+    "path": "VAEDecoder.aimodel/main.hash",
+    "size": 64,
+    "sha256": "5f6d4d9b661bb38521a727c54692bdcc19657151fd58b03f81586b9317b25d88"
+   },
+   {
+    "path": "VAEDecoder.aimodel/main.mlirb",
+    "size": 1000,
+    "sha256": "186674ada4421819f63d80f0a9cb0efb97bdc2246019578901a93c6d072842f5"
+   },
+   {
+    "path": "VAEDecoder.aimodel/metadata.json",
+    "size": 200,
+    "sha256": "68275e7c54adb7c179a2899fc3b384e2524d88d24d179ca5ff891e001a36f959"
+   },
+   {
+    "path": "metadata.json",
+    "size": 900,
+    "sha256": "12e598daecade60b04e493f45c134fec9287ac7471114d95d1995b4fb651a6c8"
+   },
+   {
+    "path": "tokenizer/chat_template.jinja",
+    "size": 300,
+    "sha256": "875b211b57b90234aa52627712bade933cc3a2a677c79ea5fe73484161cf40e9"
+   },
+   {
+    "path": "tokenizer/config.json",
+    "size": 300,
+    "sha256": "165f6b2ca2e112d05a2d5cf73f178cceabb84eaeab842b82489a2bc5cdedeaa1"
+   },
+   {
+    "path": "tokenizer/tokenizer.json",
+    "size": 300,
+    "sha256": "b87c178459f0ae819d647691287f9c812817e2156df5a74f7a547a23021570f1"
+   },
+   {
+    "path": "tokenizer/tokenizer_config.json",
+    "size": 300,
+    "sha256": "47a6faaf45c44a835738a0ee380db277b2a4db36d56b190b20a369c3f5ad72b0"
+   },
+   {
+    "path": "vae_bn_mean.npy",
+    "size": 4096,
+    "sha256": "dc877c94c29fbb8c0dd4dcfa17e69f6922a897a55f5378fa208e35248396414c"
+   },
+   {
+    "path": "vae_bn_var.npy",
+    "size": 4096,
+    "sha256": "38a3a2f3fc7bc7999bcb5c6503caea7e2611715568413f7b03f4f26f8fa13331"
+   }
+  ]
+ },
+ "metadata": {
+  "metadata_version": "0.2",
+  "kind": "diffusion",
+  "name": "flux2-sample-1024",
+  "diffusion": {
+   "type": "flux2",
+   "image_size": 1024,
+   "prediction_type": "flow_matching"
+  }
+ }
+}

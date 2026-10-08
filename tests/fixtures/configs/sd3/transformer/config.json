@@ -1,0 +1,10 @@
+{
+  "_class_name": "SD3Transformer2DModel",
+  "attention_head_dim": 64,
+  "joint_attention_dim": 4096,
+  "num_attention_heads": 24,
+  "num_layers": 24,
+  "sample_size": 128,
+  "in_channels": 16,
+  "pooled_projection_dim": 2048
+}

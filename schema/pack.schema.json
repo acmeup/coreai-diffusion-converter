@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/acmeup/coreai-diffusion-converter/schema/pack.schema.json",
+  "title": "caipack pack.json",
+  "description": "Types and enums of pack.json, format_version 1. The coded rules in src/coreai_diffusion_converter/validate.py (and docs/FORMAT.md) are authoritative; this schema is for documentation and tests.",
+  "type": "object",
+  "required": [
+    "format",
+    "format_version",
+    "id",
+    "name",
+    "family",
+    "pipeline",
+    "target",
+    "supported_sizes",
+    "default_size",
+    "default_steps",
+    "max_steps",
+    "guidance_scale",
+    "scheduler",
+    "precision",
+    "assets",
+    "license",
+    "files"
+  ],
+  "properties": {
+    "format": {
+      "const": "caipack"
+    },
+    "format_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "family": {
+      "enum": [
+        "sd1",
+        "sd2",
+        "sd3",
+        "flux2"
+      ]
+    },
+    "pipeline": {
+      "enum": [
+        "stable_diffusion",
+        "sd3",
+        "flux2"
+      ]
+    },
+    "target": {
+      "enum": [
+        "ios",
+        "macos"
+      ]
+    },
+    "supported_sizes": {
+      "type": "array",
+      "items": {
+        "enum": [
+          512,
+          768,
+          1024
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 1
+    },
+    "default_size": {
+      "enum": [
+        512,
+        768,
+        1024
+      ]
+    },
+    "default_steps": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+    },
+    "max_steps": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+    },
+    "guidance_scale": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 30
+    },
+    "scheduler": {
+      "enum": [
+        "dpmpp",
+        "pndm",
+        "flow_match_euler"
+      ]
+    },
+    "precision": {
+      "enum": [
+        "fp16",
+        "4bit"
+      ]
+    },
+    "compute_precision": {
+      "type": "string"
+    },
+    "lazy_model_loading": {
+      "type": "boolean"
+    },
+    "excluded_architectures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_-][A-Za-z0-9._-]*(/[A-Za-z0-9_-][A-Za-z0-9._-]*)*$"
+      }
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "hf",
+            "folder",
+            "single_file"
+          ]
+        },
+        "ref": {
+          "type": "string"
+        },
+        "revision": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "conversion": {
+      "type": "object",
+      "properties": {
+        "clip_skip": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4
+        },
+        "vae": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "prediction_type": {
+          "enum": [
+            "epsilon",
+            "v_prediction",
+            null
+          ]
+        }
+      }
+    },
+    "license": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "file": {
+          "enum": [
+            "LICENSE",
+            null
+          ]
+        },
+        "notice_file": {
+          "enum": [
+            "NOTICE",
+            null
+          ]
+        }
+      }
+    },
+    "attribution": {
+      "type": "string"
+    },
+    "converter": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "exporter": {
+          "type": "string"
+        }
+      }
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "files": {
+      "type": "array",
+      "maxItems": 20000,
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "size",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-][A-Za-z0-9._-]*(/[A-Za-z0-9_-][A-Za-z0-9._-]*)*$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 68719476736
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    }
+  }
+}

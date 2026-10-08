@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "coreai-diffusion-converter"
+version = "0.1.0"
+description = "Convert Stable Diffusion and FLUX.2 Klein diffusers models into single-file Core AI packs (.caipack)"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "AcmeUp Inc." }]
+# coreai-core publishes cp311 wheels only (macOS 26+, arm64).
+requires-python = ">=3.11,<3.12"
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: MacOS",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    # Apple's exporter, pinned to a tested commit. The PyPI "coreai-models" 0.1.0 is an
+    # unrelated placeholder, so the git source is required.
+    "coreai-models @ git+https://github.com/apple/coreai-models@7359dbcf6c3babb4fbfadfd015ffcc1cb6d87420#subdirectory=python",
+]
+
+[project.scripts]
+caipack = "coreai_diffusion_converter.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "jsonschema>=4,<5"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/coreai_diffusion_converter"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.uv]
+# coreai-core 1.0.0b2 is a pre-release.
+prerelease = "allow"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["slow: real model conversion (opt-in)"]
+addopts = "-m 'not slow'"

@@ -1,0 +1,5 @@
+#!/bin/sh
+# Copyright 2026 AcmeUp Inc.
+# SPDX-License-Identifier: Apache-2.0
+# Refuse commit messages that carry personal identity, machine paths or trailers.
+exec python3 "$(git rev-parse --show-toplevel)/scripts/identity_scan.py" --message "$1"

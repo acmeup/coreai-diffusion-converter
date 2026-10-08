@@ -1,0 +1,18 @@
+#!/bin/sh
+# Copyright 2026 AcmeUp Inc.
+# SPDX-License-Identifier: Apache-2.0
+# Scan the working tree and every commit being pushed before anything leaves this machine.
+set -e
+root="$(git rev-parse --show-toplevel)"
+scan="$root/scripts/identity_scan.py"
+zero=0000000000000000000000000000000000000000
+python3 "$scan" --tree
+while read -r local_ref local_sha remote_ref remote_sha; do
+    [ "$local_sha" = "$zero" ] && continue
+    if [ "$remote_sha" = "$zero" ]; then
+        range="$local_sha"
+    else
+        range="$remote_sha..$local_sha"
+    fi
+    python3 "$scan" --commits "$range"
+done

@@ -1,0 +1,71 @@
+{
+ "pack": {
+  "format": "caipack",
+  "format_version": 1,
+  "id": "sd1-sample-512",
+  "name": "Sample SD1 512",
+  "description": "",
+  "family": "sd1",
+  "pipeline": "stable_diffusion",
+  "target": "ios",
+  "supported_sizes": [
+   512
+  ],
+  "default_size": 512,
+  "default_steps": 25,
+  "max_steps": 50,
+  "guidance_scale": 7.5,
+  "scheduler": "dpmpp",
+  "precision": "fp16",
+  "compute_precision": "float16",
+  "lazy_model_loading": true,
+  "excluded_architectures": [
+   "h13"
+  ],
+  "assets": [
+   "TextEncoder.aimodel",
+   "Unet.aimodel",
+   "VAEDecoder.aimodel",
+   "metadata.json",
+   "tokenizer/merges.txt",
+   "tokenizer/special_tokens_map.json",
+   "tokenizer/tokenizer_config.json",
+   "tokenizer/vocab.json"
+  ],
+  "source": {
+   "kind": "hf",
+   "ref": "example-org/example-model",
+   "revision": "0000000000000000000000000000000000000000"
+  },
+  "conversion": {
+   "clip_skip": 1,
+   "vae": null,
+   "prediction_type": "epsilon"
+  },
+  "license": {
+   "name": "CreativeML OpenRAIL-M",
+   "file": "LICENSE",
+   "notice_file": null
+  },
+  "attribution": "",
+  "converter": {
+   "name": "coreai-diffusion-converter",
+   "version": "0.1.0",
+   "exporter": "apple/coreai-models@7359dbcf6c3b"
+  },
+  "created_at": "2026-10-09T12:00:00Z",
+  "files": {
+   "a": 1
+  }
+ },
+ "metadata": {
+  "metadata_version": "0.2",
+  "kind": "diffusion",
+  "name": "sd1-sample-512",
+  "diffusion": {
+   "type": "stable-diffusion",
+   "image_size": 512,
+   "prediction_type": "epsilon"
+  }
+ }
+}
