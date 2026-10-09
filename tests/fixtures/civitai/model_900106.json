@@ -1,0 +1,45 @@
+{
+ "id": 900106,
+ "name": "Example LORA 900106",
+ "type": "LORA",
+ "nsfw": false,
+ "allowNoCredit": true,
+ "allowCommercialUse": [
+  "Image"
+ ],
+ "allowDerivatives": true,
+ "allowDifferentLicense": true,
+ "availability": "Public",
+ "creator": {
+  "username": "example-creator"
+ },
+ "modelVersions": [
+  {
+   "id": 900006,
+   "name": "sd15 lora",
+   "baseModel": "SD 1.5",
+   "baseModelType": "Standard",
+   "status": "Published",
+   "availability": "Public",
+   "files": [
+    {
+     "id": 92996,
+     "name": "PerfectEyesXL.safetensors",
+     "sizeKB": 223099.60546875,
+     "type": "Model",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": null,
+      "fp": null
+     },
+     "hashes": {
+      "AutoV2": "F248364CF0",
+      "SHA256": "F248364CF0ACC7A00BC4B5145B44C0DFBF10E71E9B0EFB6B77F0956AEAF2411C"
+     },
+     "primary": true,
+     "downloadUrl": "https://civitai.com/api/download/models/128461?fileId=92996"
+    }
+   ]
+  }
+ ]
+}

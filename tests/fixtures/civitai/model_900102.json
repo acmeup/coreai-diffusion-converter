@@ -1,0 +1,45 @@
+{
+ "id": 900102,
+ "name": "Example Checkpoint 900102",
+ "type": "Checkpoint",
+ "nsfw": false,
+ "allowNoCredit": true,
+ "allowCommercialUse": [
+  "Image"
+ ],
+ "allowDerivatives": true,
+ "allowDifferentLicense": true,
+ "availability": "Public",
+ "creator": {
+  "username": "example-creator"
+ },
+ "modelVersions": [
+  {
+   "id": 900002,
+   "name": "int8 only",
+   "baseModel": "SDXL 1.0",
+   "baseModelType": "Standard",
+   "status": "Published",
+   "availability": "Public",
+   "files": [
+    {
+     "id": 92,
+     "name": "example_int8.safetensors",
+     "sizeKB": 6775732.4609375,
+     "type": "Model",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "int8"
+     },
+     "hashes": {
+      "AutoV2": "6327ECA98B",
+      "SHA256": "6327ECA98BFB6538DD7A4EDCE22484A1BBC57A8CFF6B11D075D40DA1AFB847AC"
+     },
+     "primary": true,
+     "downloadUrl": "https://civitai.com/api/download/models/1408658?fileId=1310654"
+    }
+   ]
+  }
+ ]
+}

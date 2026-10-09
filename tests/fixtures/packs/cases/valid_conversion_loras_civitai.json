@@ -2,10 +2,10 @@
  "pack": {
   "format": "caipack",
   "format_version": 1,
-  "id": "sd1-sample-512",
+  "id": "sd1-civitai-loras",
   "name": "Sample SD1 512",
   "description": "",
-  "family": "sdxl",
+  "family": "sd1",
   "pipeline": "stable_diffusion",
   "target": "ios",
   "supported_sizes": [
@@ -33,14 +33,59 @@
    "tokenizer/vocab.json"
   ],
   "source": {
-   "kind": "hf",
-   "ref": "example-org/example-model",
-   "revision": "0000000000000000000000000000000000000000"
+   "kind": "civitai",
+   "ref": "4384@128713",
+   "revision": null,
+   "file_sha256": "47320987f9a49d5b00119b960f247a956773f57543982b8bfcb6da5bb3afd9ef",
+   "base_model": "SD 1.5",
+   "permissions": {
+    "allow_no_credit": true,
+    "allow_commercial_use": [
+     "Image",
+     "Rent"
+    ],
+    "allow_derivatives": true,
+    "allow_different_license": true
+   }
   },
   "conversion": {
-   "clip_skip": 1,
+   "clip_skip": 2,
    "vae": null,
-   "prediction_type": "epsilon"
+   "prediction_type": "epsilon",
+   "vae_precision": null,
+   "loras": [
+    {
+     "name": "style.safetensors",
+     "sha256": "346cfb66e0de64f614d67a760ac07e1d9403aaf900cb792d4385655dbc058bfb",
+     "scale": 0.8,
+     "source": {
+      "kind": "civitai",
+      "ref": "1@2",
+      "revision": null
+     },
+     "trained_words": [
+      "style word"
+     ],
+     "permissions": {
+      "allow_no_credit": false,
+      "allow_commercial_use": [],
+      "allow_derivatives": false,
+      "allow_different_license": false
+     }
+    },
+    {
+     "name": "detail.safetensors",
+     "sha256": "fc7d86ad6ba7ca078aacd17d52f325f4131a021fb8cfac419852047ecae27206",
+     "scale": -0.5,
+     "source": {
+      "kind": "file",
+      "ref": "detail.safetensors",
+      "revision": null
+     },
+     "trained_words": [],
+     "permissions": null
+    }
+   ]
   },
   "license": {
    "name": "CreativeML OpenRAIL-M",
@@ -146,5 +191,109 @@
    "image_size": 512,
    "prediction_type": "epsilon"
   }
- }
+ },
+ "entries": [
+  {
+   "path": "pack.json",
+   "size": 1500,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "CHANGES.md",
+   "size": 500,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "LICENSE",
+   "size": 2000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "TextEncoder.aimodel/main.hash",
+   "size": 64,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "TextEncoder.aimodel/main.mlirb",
+   "size": 1000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "TextEncoder.aimodel/metadata.json",
+   "size": 200,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "Unet.aimodel/main.hash",
+   "size": 64,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "Unet.aimodel/main.mlirb",
+   "size": 1000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "Unet.aimodel/metadata.json",
+   "size": 200,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "VAEDecoder.aimodel/main.hash",
+   "size": 64,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "VAEDecoder.aimodel/main.mlirb",
+   "size": 1000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "VAEDecoder.aimodel/metadata.json",
+   "size": 200,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "metadata.json",
+   "size": 900,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer/merges.txt",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer/special_tokens_map.json",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer/tokenizer_config.json",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer/vocab.json",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  }
+ ]
 }

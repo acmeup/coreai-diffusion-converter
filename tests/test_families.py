@@ -19,7 +19,10 @@ def test_exact_class_to_family(family_tree):
 
 
 @pytest.mark.parametrize("cls,message", [
-    ("StableDiffusionXLPipeline", "SDXL-based models are not supported"),
+    ("StableDiffusionXLImg2ImgPipeline", "SDXL refiner models are not supported"),
+    ("StableDiffusionXLInpaintPipeline", "inpainting checkpoints"),
+    ("StableDiffusionXLControlNetPipeline", "ControlNet"),
+    ("StableDiffusionXLInstructPix2PixPipeline", "image-to-image"),
     ("StableDiffusionInpaintPipeline", "inpainting checkpoints"),
     ("Flux2Pipeline", "Flux2Pipeline is not supported"),
     ("WanPipeline", "WanPipeline is not supported"),
@@ -123,14 +126,15 @@ def test_weight_variant(family_tree):
     assert F.weight_variant(tree, F.WEIGHT_COMPONENTS["sd1"]) is None
 
 
-@pytest.mark.parametrize("model_type,family", [("v1", "sd1"), ("v2", "sd2"), ("sd3", "sd3"),
+@pytest.mark.parametrize("model_type,family", [("v1", "sd1"), ("v2", "sd2"), ("xl_base", "sdxl"), ("sd3", "sd3"),
                                                 ("sd35_medium", "sd3"), ("sd35_large", "sd3")])
 def test_single_file_mapping(model_type, family):
     assert F.family_for_single_file_type(model_type) == family
 
 
 @pytest.mark.parametrize("model_type,message", [
-    ("xl_base", "SDXL"), ("xl_refiner", "SDXL"), ("xl_inpaint", "SDXL"), ("inpainting", "inpainting"),
+    ("xl_refiner", "SDXL refiner"), ("xl_inpaint", "inpainting"), ("playground-v2-5", "Playground v2.5"),
+    ("inpainting", "inpainting"),
     ("inpainting_v2", "inpainting"), ("flux-2-dev", "FLUX single-file"), ("flux-dev", "FLUX single-file"),
     ("controlnet", "not supported"), ("wan-t2v-14B", "not supported"),
 ])
@@ -162,3 +166,70 @@ def test_single_file_detection_reads_shapes_only(tmp_path):
     save_file({"model.diffusion_model.input_blocks.0.0.weight": torch.zeros(8, 9, 3, 3)}, str(r))
     with pytest.raises(UnsupportedModelError, match="inpainting"):
         F.detect_single_file_family(r)
+
+
+# --- SDXL ---------------------------------------------------------------------------------------
+
+
+def test_sdxl_folder_is_sdxl(family_tree):
+    spec = F.detect_family(family_tree("sdxl"))
+    assert (spec.family, spec.pipeline, spec.sizes, spec.default_precision) == ("sdxl", "sdxl", (1024,), "4bit")
+    assert (spec.default_steps, spec.guidance, spec.scheduler) == (25, 5.0, "dpmpp")
+
+
+def test_sdxl_refiner_and_variants_refused(family_tree):
+    with pytest.raises(UnsupportedModelError, match="refiner"):
+        F.detect_family(family_tree("sdxl_refiner"))
+    # A refiner relabelled as a base pipeline is still caught (no text_encoder, 2560 projection).
+    relabelled = family_tree("sdxl_refiner", model_index__json={"_class_name": "StableDiffusionXLPipeline"})
+    with pytest.raises(UnsupportedModelError, match="refiner"):
+        F.detect_family(relabelled)
+    with pytest.raises(UnsupportedModelError, match="inpainting"):
+        F.detect_family(family_tree("sdxl", unet__config__json={"in_channels": 9}))
+    with pytest.raises(UnsupportedModelError, match="geometry"):
+        F.detect_family(family_tree("sdxl", unet__config__json={"cross_attention_dim": 1024}))
+
+
+def test_sdxl_ios_refused_with_and_without_a_tree(family_tree):
+    spec = F.FAMILIES["sdxl"]
+    for tree in (family_tree("sdxl"), None):
+        with pytest.raises(UnsupportedModelError, match="Mac-only"):
+            F.make_plan(spec, tree, "ios", None, None, DEFAULT)
+
+
+def test_sdxl_plan(family_tree):
+    spec = F.FAMILIES["sdxl"]
+    tree = family_tree("sdxl")
+    p = F.make_plan(spec, tree, "macos", None, None, DEFAULT)
+    assert (p.size, p.sample_size, p.precision, p.compression) == (1024, None, "4bit", "4bit")
+    assert p.components == ["text_encoder", "text_encoder_2", "unet", "vae_decoder"]
+    assert F.make_plan(spec, None, "macos", None, None, DEFAULT).size == 1024
+    for size in (512, 768):
+        with pytest.raises(UsageError, match="not available"):
+            F.make_plan(spec, tree, "macos", size, None, DEFAULT)
+    odd = family_tree("sdxl", unet__config__json={"sample_size": 96})
+    p = F.make_plan(spec, odd, "macos", None, None, DEFAULT)
+    assert p.sample_size == 128 and any("traced at 1024" in w for w in p.warnings)
+
+
+def test_sdxl_tuning(family_tree):
+    spec = F.FAMILIES["sdxl"]
+    tree = family_tree("sdxl")
+    with pytest.raises(UsageError, match="does not apply to SDXL"):
+        F.make_plan(spec, tree, "macos", None, None, F.Tuning(clip_skip=2))
+    p = F.make_plan(spec, tree, "macos", None, None, F.Tuning(vae="x", prediction_type="v_prediction"))
+    assert (p.vae, p.prediction_type) == ("x", "v_prediction")
+
+
+def test_sdxl_single_file_needs_a_four_channel_unet(tmp_path, monkeypatch):
+    import torch
+    from safetensors.torch import save_file
+
+    monkeypatch.setattr(F, "family_for_single_file_type", lambda t: "sdxl")
+    p = tmp_path / "xl.safetensors"
+    save_file({"model.diffusion_model.input_blocks.0.0.weight": torch.zeros(8, 4, 3, 3)}, str(p))
+    assert F.detect_single_file_family(p) == "sdxl"
+    q = tmp_path / "xl-inpaint.safetensors"
+    save_file({"model.diffusion_model.input_blocks.0.0.weight": torch.zeros(8, 9, 3, 3)}, str(q))
+    with pytest.raises(UnsupportedModelError, match="inpainting"):
+        F.detect_single_file_family(q)

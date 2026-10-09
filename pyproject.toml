@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "coreai-diffusion-converter"
-version = "0.1.0"
-description = "Convert Stable Diffusion and FLUX.2 Klein diffusers models into single-file Core AI packs (.caipack)"
+version = "0.2.0"
+description = "Convert Stable Diffusion, SDXL and FLUX.2 Klein models into single-file Core AI packs (.caipack)"
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
@@ -21,6 +21,10 @@ dependencies = [
     # Apple's exporter, pinned to a tested commit. The PyPI "coreai-models" 0.1.0 is an
     # unrelated placeholder, so the git source is required.
     "coreai-models @ git+https://github.com/apple/coreai-models@7359dbcf6c3babb4fbfadfd015ffcc1cb6d87420#subdirectory=python",
+    # diffusers' and transformers' LoRA loaders (transformers 5.12 requires peft 0.19 or later).
+    "peft>=0.19",
+    # Civitai REST client (also a huggingface_hub dependency; declared because civitai.py imports it).
+    "httpx>=0.28,<1",
 ]
 
 [project.scripts]
@@ -41,5 +45,8 @@ prerelease = "allow"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = ["slow: real model conversion (opt-in)"]
-addopts = "-m 'not slow'"
+markers = [
+    "slow: real model conversion (opt-in)",
+    "live: real network requests (opt-in)",
+]
+addopts = "-m 'not slow and not live'"

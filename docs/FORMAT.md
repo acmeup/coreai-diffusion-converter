@@ -56,11 +56,11 @@ UTF-8 JSON, snake_case keys. Unknown fields are ignored by readers (forward comp
 | `id` | string | `^[a-z0-9][a-z0-9-]{0,47}$`. Stable identity of the model; re-importing the same id replaces it. |
 | `name` | string | Display name, 1-80 characters. |
 | `description` | string | At most 500 characters. |
-| `family` | string | `sd1`, `sd2`, `sd3` or `flux2`. |
-| `pipeline` | string | `stable_diffusion` (sd1, sd2), `sd3` or `flux2`. Must agree with `family`. |
+| `family` | string | `sd1`, `sd2`, `sdxl`, `sd3` or `flux2`. |
+| `pipeline` | string | `stable_diffusion` (sd1, sd2), `sdxl`, `sd3` or `flux2`. Must agree with `family`. |
 | `target` | string | `ios` or `macos`: the device class the pack was converted for. Informational for importers. |
 | `supported_sizes` | [integer] | Exactly one element, equal to `default_size`. |
-| `default_size` | integer | The traced image edge in pixels. sd1: 512; sd2: 512 or 768; sd3 and flux2: 512 or 1024. |
+| `default_size` | integer | The traced image edge in pixels. sd1: 512; sd2: 512 or 768; sdxl: 1024; sd3 and flux2: 512 or 1024. |
 | `default_steps`, `max_steps` | integer | `1 <= default_steps <= max_steps <= 100`. |
 | `guidance_scale` | number | `0...30`. |
 | `scheduler` | string | `dpmpp`, `pndm` or `flow_match_euler`. |
@@ -69,13 +69,23 @@ UTF-8 JSON, snake_case keys. Unknown fields are ignored by readers (forward comp
 | `lazy_model_loading` | boolean | Load components on demand. |
 | `excluded_architectures` | [string] | Device architecture prefixes the model is known to fail on (for example `h13`). |
 | `assets` | [string] | Paths an importer checks before calling the model ready: each is a listed file or a directory prefix of listed files. |
-| `source` | object | `kind` (`hf`, `folder`, `single_file`), `ref` (Hub id, folder name or file name; never an absolute path), `revision` (Hub commit or null). |
-| `conversion` | object | Informational: `clip_skip`, `vae`, `prediction_type`. |
+| `source` | object | `kind` (`hf`, `folder`, `single_file`, `civitai`), `ref` (Hub id, folder name, file name, or `<model id>@<version id>` for Civitai; never an absolute path), `revision` (Hub commit or null). Optional, Civitai only: `file_sha256` (the verified checkpoint hash), `base_model` (Civitai's base model string), `permissions` (below), `verified` (`false` only for a file Civitai publishes no SHA-256 for). |
+| `conversion` | object | Informational: `clip_skip`, `vae`, `prediction_type`; optional `vae_precision` (`float32` for sdxl: the VAE decoder's weights and compute) and `loras` (below). |
 | `license` | object | `name`; `file` (`"LICENSE"` or null); `notice_file` (`"NOTICE"` or null). |
 | `attribution` | string | A line the model's licence requires to be displayed, or empty. |
 | `converter` | object | `name`, `version`, `exporter` (the exporter repository and commit). |
 | `created_at` | string | UTC timestamp, ISO 8601 with `Z`. |
 | `files` | [object] | Every archive entry except `pack.json`: `path`, `size` (bytes), `sha256` (lowercase hex). |
+
+Optional informational objects (readers may ignore them; the reference app does):
+
+- `conversion.loras`: one object per merged LoRA, in merge order: `name` (the file's base name,
+  never a path), `sha256` (64 lowercase hex), `scale` (number), `source` (`kind` `file`, `hf` or
+  `civitai`; `ref`; `revision`), `trained_words` ([string]), `permissions` (object or null),
+  `verified` (present and `false` only for an unverified Civitai file).
+- `permissions` (Civitai): `allow_no_credit` (bool), `allow_commercial_use` ([string]: `Image`,
+  `RentCivit`, `Rent`, `Sell`, `SellMerge`), `allow_derivatives` (bool), `allow_different_license`
+  (bool). A human-readable summary is in the pack's `NOTICE`.
 
 ## Validation rules and error codes
 
@@ -96,7 +106,7 @@ larger than 4 MiB gives `files_invalid`.
 3. `family` is known (`family_unsupported`); `pipeline` agrees with it (`pipeline_mismatch`);
    `target` is `ios` or `macos` (`target_invalid`).
 4. One traced size (`sizes_invalid`): `supported_sizes == [default_size]` and the size is in the
-   family's set. For `flux2`, 512 requires assets `Transformer_512.aimodel` and
+   family's set (sdxl: 1024 only). For `flux2`, 512 requires assets `Transformer_512.aimodel` and
    `VAEDecoder_half.aimodel`; 1024 requires `Transformer.aimodel` and `VAEDecoder.aimodel`.
 5. `1 <= default_steps <= max_steps <= 100` (`steps_invalid`); `0 <= guidance_scale <= 30`
    (`guidance_invalid`); known `scheduler` (`scheduler_unknown`); known `precision`
@@ -119,11 +129,24 @@ larger than 4 MiB gives `files_invalid`.
    these checks runs over the whole list before the next one.
 10. Full validation re-hashes every entry (`checksum_mismatch`).
 11. `metadata.json` agrees with `pack.json` (`metadata_mismatch`): `diffusion.type` is
-    `stable-diffusion`, `stable-diffusion-3` or `flux2` for the pipeline; for sd1, sd2 and sd3
-    `diffusion.image_size == default_size`; for sd1 and sd2 `diffusion.prediction_type` is
-    `epsilon` or `v_prediction`.
+    `stable-diffusion`, `stable-diffusion-xl`, `stable-diffusion-3` or `flux2` for the pipeline;
+    for sd1, sd2, sdxl and sd3 `diffusion.image_size == default_size`; for sd1, sd2 and sdxl
+    `diffusion.prediction_type` is `epsilon` or `v_prediction`.
 
 ## Versioning
 
 The format is versioned by `format_version`. Adding optional fields does not change the version;
 any change an existing reader would misinterpret does.
+
+Adding the `sdxl` family did not change `format_version`: a reader that does not know it refuses the
+pack with `family_unsupported`. The Civitai `source` fields and `conversion.loras` /
+`conversion.vae_precision` are optional and informational, so they did not change it either.
+
+The `sdxl` bundle: `TextEncoder.aimodel` (`input_ids` -> `hidden_embeds`, the penultimate CLIP-L
+hidden state), `TextEncoder2.aimodel` (`input_ids` -> `hidden_embeds`, the penultimate OpenCLIP
+bigG hidden state, and `pooled_outputs`, the projected pooled embedding), `Unet.aimodel` (`sample`,
+`timestep`, `encoder_hidden_states` [2, 77, 2048], `text_embeds` [2, 1280], `time_ids` [2, 6] ->
+`noise_pred`; batch 2 = unconditional then conditional), `VAEDecoder.aimodel` (`z` -> `image`,
+float32), `tokenizer/` and `tokenizer_2/`. `metadata.json` adds
+`diffusion.force_zeros_for_empty_prompt` (zero unconditional embeddings for an empty negative
+prompt, as diffusers does).

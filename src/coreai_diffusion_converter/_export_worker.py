@@ -14,7 +14,7 @@ import functools
 import json
 import logging
 import sys
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -43,7 +43,8 @@ def patch_attr(obj: Any, name: str, value: Any) -> Iterator[None]:
 
 
 def make_loader(original: Callable[..., Any], *, pack_id: str, tree: str, variant: str | None,
-                sample_size: int | None, family: str, tuning: dict, result: dict) -> Callable[..., Any]:
+                sample_size: int | None, family: str, tuning: dict, result: dict,
+                loras: Sequence[dict] = ()) -> Callable[..., Any]:
     def load(model_id: Any, *args: Any, **kwargs: Any) -> Any:
         if str(model_id) != pack_id:
             LOG.warning("from_pretrained(%s) is not the pack id; loading the source tree anyway", model_id)
@@ -58,6 +59,11 @@ def make_loader(original: Callable[..., Any], *, pack_id: str, tree: str, varian
             LOG.info("sample_size %s -> %d (image edge %d)", denoiser.config.sample_size, sample_size,
                      sample_size * 8)
             denoiser.register_to_config(sample_size=sample_size)
+        if loras:
+            # Before clip skip trims layers and before quantization / tracing.
+            from .lora import apply_loras
+
+            result["loras"] = apply_loras(pipe, loras, family)
         if family in ("sd1", "sd2"):
             from .tuning import apply_tuning
 
@@ -102,11 +108,21 @@ def run(plan: dict) -> int:
 
     tree = plan["tree"]
     result: dict = {}
+    if plan["family"] == "sdxl":
+        import asyncio
+
+        from . import _sdxl_export
+
+        with patch_attr(P, "snapshot_download", lambda repo_id, *a, **kw: tree), \
+             patch_attr(P, "build_aimodel_metadata", wrap_metadata(P.build_aimodel_metadata, plan["licence_name"])):
+            asyncio.run(_sdxl_export.export_sdxl(plan, result))
+        Path(plan["result_path"]).write_text(json.dumps(result), encoding="utf-8")
+        return 0
     with patch_attr(P, "get_pipeline_type", lambda _id: plan["pipeline_type"]), \
          patch_attr(P, "snapshot_download", lambda repo_id, *a, **kw: tree), \
          patch_from_pretrained(pack_id=plan["pack_id"], tree=tree, variant=plan["variant"],
                                sample_size=plan["sample_size"], family=plan["family"],
-                               tuning=plan["tuning"], result=result), \
+                               tuning=plan["tuning"], result=result, loras=plan.get("loras") or ()), \
          patch_attr(P, "build_aimodel_metadata", wrap_metadata(P.build_aimodel_metadata, plan["licence_name"])):
         P.export_diffusion(P.DiffusionExportConfig(
             hf_model_id=plan["pack_id"],  # drives out_root/<pack_id> and metadata.json "name"

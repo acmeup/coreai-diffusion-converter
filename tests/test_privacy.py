@@ -77,3 +77,15 @@ def test_prediction_type_mismatch_fails():
 
 def test_utc():
     assert privacy.to_utc("2026-10-07T21:30:58.556550-04:00") == "2026-10-08T01:30:58.556550Z"
+
+
+def test_token_in_a_text_file_fails(tmp_path):
+    b = bundle(tmp_path)
+    (b / "CHANGES.md").write_text("token tok-SECRET-1")
+    with pytest.raises(ExportError, match="Civitai API token") as err:
+        privacy.scan_text(b, [], secrets=["tok-SECRET-1"])
+    assert "tok-SECRET-1" not in str(err.value)
+    (b / "CHANGES.md").write_text("clean")
+    (b / "NOTICE").write_text("tok-SECRET-1")  # files without a suffix are scanned too
+    with pytest.raises(ExportError):
+        privacy.scan_text(b, [], secrets=["tok-SECRET-1"])

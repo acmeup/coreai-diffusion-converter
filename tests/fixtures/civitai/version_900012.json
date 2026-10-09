@@ -1,0 +1,119 @@
+{
+ "id": 900012,
+ "modelId": 900112,
+ "name": "mixed files",
+ "baseModel": "SDXL 1.0",
+ "baseModelType": "Standard",
+ "status": "Published",
+ "usageControl": "Download",
+ "trainedWords": [],
+ "model": {
+  "name": "Animagine XL 4.0",
+  "type": "Checkpoint",
+  "nsfw": false,
+  "poi": false
+ },
+ "files": [
+  {
+   "id": 1,
+   "name": "a_fp32_full.safetensors",
+   "sizeKB": 13000000,
+   "type": "Model",
+   "metadata": {
+    "format": "SafeTensor",
+    "size": "full",
+    "fp": "fp32"
+   },
+   "hashes": {
+    "AutoV2": "6327ECA98B",
+    "SHA256": "6327ECA98BFB6538DD7A4EDCE22484A1BBC57A8CFF6B11D075D40DA1AFB847AC"
+   },
+   "primary": true,
+   "downloadUrl": "https://civitai.com/api/download/models/1408658?fileId=1310654"
+  },
+  {
+   "id": 2,
+   "name": "a_fp16_pruned.safetensors",
+   "sizeKB": 2000000,
+   "type": "Model",
+   "metadata": {
+    "format": "SafeTensor",
+    "size": "pruned",
+    "fp": "fp16"
+   },
+   "hashes": {
+    "AutoV2": "6327ECA98B",
+    "SHA256": "6327ECA98BFB6538DD7A4EDCE22484A1BBC57A8CFF6B11D075D40DA1AFB847AC"
+   },
+   "primary": false,
+   "downloadUrl": "https://civitai.com/api/download/models/1408658?fileId=1310654"
+  },
+  {
+   "id": 3,
+   "name": "a.ckpt",
+   "sizeKB": 6775732.4609375,
+   "type": "Model",
+   "metadata": {
+    "format": "PickleTensor",
+    "size": "full",
+    "fp": "fp16"
+   },
+   "hashes": {
+    "AutoV2": "6327ECA98B",
+    "SHA256": "6327ECA98BFB6538DD7A4EDCE22484A1BBC57A8CFF6B11D075D40DA1AFB847AC"
+   },
+   "primary": true,
+   "downloadUrl": "https://civitai.com/api/download/models/1408658?fileId=1310654"
+  },
+  {
+   "id": 4,
+   "name": "a_int8.safetensors",
+   "sizeKB": 6775732.4609375,
+   "type": "Model",
+   "metadata": {
+    "format": "SafeTensor",
+    "size": "full",
+    "fp": "int8"
+   },
+   "hashes": {
+    "AutoV2": "6327ECA98B",
+    "SHA256": "6327ECA98BFB6538DD7A4EDCE22484A1BBC57A8CFF6B11D075D40DA1AFB847AC"
+   },
+   "primary": true,
+   "downloadUrl": "https://civitai.com/api/download/models/1408658?fileId=1310654"
+  },
+  {
+   "id": 5,
+   "name": "data.zip",
+   "sizeKB": 6775732.4609375,
+   "type": "Training Data",
+   "metadata": {
+    "format": "Other"
+   },
+   "hashes": {
+    "AutoV2": "6327ECA98B",
+    "SHA256": "6327ECA98BFB6538DD7A4EDCE22484A1BBC57A8CFF6B11D075D40DA1AFB847AC"
+   },
+   "primary": true,
+   "downloadUrl": "https://civitai.com/api/download/models/1408658?fileId=1310654"
+  },
+  {
+   "id": 6,
+   "name": "a_fp16_full.safetensors",
+   "sizeKB": 6775732.4609375,
+   "type": "Model",
+   "metadata": {
+    "format": "SafeTensor",
+    "size": "full",
+    "fp": "fp16"
+   },
+   "hashes": {
+    "AutoV2": "6327ECA98B",
+    "SHA256": "6327ECA98BFB6538DD7A4EDCE22484A1BBC57A8CFF6B11D075D40DA1AFB847AC"
+   },
+   "primary": true,
+   "downloadUrl": "https://civitai.com/api/download/models/1408658?fileId=1310654"
+  }
+ ],
+ "downloadUrl": "https://civitai.com/api/download/models/1408658"
+}

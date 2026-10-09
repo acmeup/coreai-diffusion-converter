@@ -1,0 +1,40 @@
+{
+ "id": 900008,
+ "modelId": 900108,
+ "name": "no sha",
+ "baseModel": "SDXL 1.0",
+ "baseModelType": "Standard",
+ "status": "Published",
+ "usageControl": "Download",
+ "trainedWords": [
+  "green eyes",
+  "blue eyes",
+  "brown eyes",
+  "perfecteyes"
+ ],
+ "model": {
+  "name": "Perfect Eyes XL",
+  "type": "LORA",
+  "nsfw": false,
+  "poi": false
+ },
+ "files": [
+  {
+   "id": 92996,
+   "name": "PerfectEyesXL.safetensors",
+   "sizeKB": 223099.60546875,
+   "type": "Model",
+   "metadata": {
+    "format": "SafeTensor",
+    "size": null,
+    "fp": null
+   },
+   "hashes": {
+    "AutoV2": "ABCDEF0123"
+   },
+   "primary": true,
+   "downloadUrl": "https://civitai.com/api/download/models/128461?fileId=92996"
+  }
+ ],
+ "downloadUrl": "https://civitai.com/api/download/models/128461"
+}

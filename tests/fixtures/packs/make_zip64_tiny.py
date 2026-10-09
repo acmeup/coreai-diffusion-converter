@@ -47,6 +47,8 @@ def make_bundle(root: Path) -> None:
     w("tokenizer/vocab.json", "{\"a\": 0, \"b\": 1}\n")
 
 
+FIXTURE_CONVERTER_VERSION = "0.1.0"
+
 HEADER = {
     "id": "zip64-tiny", "name": "ZIP64 Tiny", "description": "Test fixture, not a model.",
     "family": "sd1", "pipeline": "stable_diffusion", "target": "ios",
@@ -65,6 +67,9 @@ def build(out: Path) -> None:
         bundle = Path(tmp)
         make_bundle(bundle)
         pack = packmod.build_pack_json(HEADER, bundle, created_at=CREATED_AT)
+        # Pinned to the converter version that first wrote the fixture, so a version bump does not
+        # change the bytes every importer's copy of this file is compared against.
+        pack["converter"]["version"] = FIXTURE_CONVERTER_VERSION
         saved = packmod.ZIP64_THRESHOLD
         packmod.ZIP64_THRESHOLD = 0  # every member gets ZIP64 headers
         try:

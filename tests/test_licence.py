@@ -97,3 +97,57 @@ def test_changes_md_has_no_path_and_records_tuning(tmp_path):
     assert str(tmp_path) not in text and "my-vae" in text
     assert "Clip skip 2" in text and "v_prediction (set explicitly)" in text
     assert "apple/coreai-models 7359dbcf6c3b" in text and "safety checker" in text
+
+
+def test_civitai_permission_sentences():
+    from coreai_diffusion_converter.civitai import CivitaiPermissions
+
+    strict = CivitaiPermissions(False, (), False, False, creator="someone")
+    assert strict.summary_lines() == [
+        "Credit the creator (someone) when you share the model or its outputs.",
+        "No commercial use is allowed.",
+        "Sharing merges or other derivatives is not allowed.",
+        "Derivatives must keep these same permissions."]
+    open_ = CivitaiPermissions(True, ("Image", "RentCivit", "Rent", "Sell", "SellMerge", "Future"), True, True)
+    assert open_.summary_lines() == ["Commercial use allowed: selling images you generate, running it on Civitai's "
+                                     "generator, running it on other generation services, selling the model, "
+                                     "selling merges, Future."]
+    assert open_.to_json()["allow_commercial_use"][-1] == "Future"
+
+
+def test_extra_notice_forces_notice_file(tmp_path):
+    info = licence.resolve(licence_file=None, licence_dir=tmp_path, name_override=None, card=(None, None),
+                           allow_missing=True)
+    info.extra_notice = ["Civitai permissions for X v1 (https://civitai.com/models/1?modelVersionId=2), by c:\n- a\n"]
+    bundle = tmp_path / "b"
+    bundle.mkdir()
+    licence.write_files(info, bundle)
+    assert info.notice_file == "NOTICE" and "Civitai permissions for X v1" in (bundle / "NOTICE").read_text()
+
+
+def test_default_licence_names_from_civitai_base_models():
+    from coreai_diffusion_converter.civitai import DEFAULT_LICENCE_NAMES
+
+    assert DEFAULT_LICENCE_NAMES["SD 1.5"] == "CreativeML OpenRAIL-M"
+    assert DEFAULT_LICENCE_NAMES["SDXL 1.0"] == "CreativeML Open RAIL++-M"
+    assert DEFAULT_LICENCE_NAMES["SD 3.5 Medium"] == licence.STABILITY_NAME
+    for ambiguous in ("Illustrious", "NoobAI", "Pony"):
+        assert ambiguous not in DEFAULT_LICENCE_NAMES
+    assert licence.licence_display_name(None, (None, None)) == "See LICENSE"
+
+
+def test_changes_lists_loras_notes_and_vae_precision(tmp_path):
+    info = licence.ChangesInfo(
+        exporter_commit="7359dbcf6c3b", components=["text_encoder", "text_encoder_2", "unet", "vae_decoder"],
+        compression="4bit", compute_precision="float16", size=1024, vae=None, clip_skip=1,
+        prediction_type="epsilon", prediction_type_overridden=False, family="sdxl", vae_precision="float32",
+        loras=({"name": "PerfectEyesXL.safetensors", "sha256": "ab" * 32, "scale": 0.8,
+                "source": {"kind": "civitai", "ref": "118427@128461", "revision": None},
+                "trained_words": ["green eyes", "perfecteyes"]},),
+        notes=(licence.derivatives_warning("Pixel Art XL v1.1"),))
+    text = licence.changes_text(info)
+    assert "- LoRA merged: PerfectEyesXL.safetensors (sha256 abababababab), scale 0.8, from civitai 118427@128461" in text
+    assert "  trigger words: green eyes, perfecteyes" in text
+    assert "VAE decoder: float32 weights and compute" in text
+    assert "Pixel Art XL v1.1: the creator does not allow derivatives" in text
+    assert licence.LORA_TERMS_LINE in text

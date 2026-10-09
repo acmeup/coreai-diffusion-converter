@@ -81,12 +81,18 @@ def _needles(paths: list[str | Path]) -> list[str]:
     return out
 
 
-def scan_text(bundle: Path, needles: list[str | Path]) -> None:
-    """Fail (exit 4) when a text file contains any absolute machine path in ``needles``."""
+def scan_text(bundle: Path, needles: list[str | Path], secrets: list[str] = ()) -> None:
+    """Fail (exit 4) when a text file contains any absolute machine path in ``needles``, or any of
+    ``secrets`` (an API token)."""
     needles_s = _needles(needles)
+    secrets_s = [s for s in secrets if s]
     for p in sorted(bundle.rglob("*")):
-        if p.is_file() and p.suffix.lower() in TEXT_SUFFIXES:
+        # NOTICE, LICENSE and CHANGES-like files without a suffix are text too.
+        if p.is_file() and (p.suffix.lower() in TEXT_SUFFIXES or (not p.suffix and ".aimodel" not in p.as_posix())):
             text = p.read_text(encoding="utf-8", errors="replace")
+            for n in secrets_s:
+                if n in text:
+                    raise ExportError(f"{p.relative_to(bundle).as_posix()} contains the Civitai API token")
             for n in needles_s:
                 if n in text:
                     raise ExportError(f"{p.relative_to(bundle).as_posix()} contains a local machine path")

@@ -16,21 +16,22 @@ from .errors import UnsupportedModelError, UsageError
 
 LOG = logging.getLogger(__name__)
 
-SDXL_MESSAGE = ("SDXL-based models are not supported: Apple's Core AI diffusion pipelines implement "
-                "SD 1.x, SD 2.x, SD 3.x and FLUX.2 Klein only")
+SDXL_REFINER_MESSAGE = "SDXL refiner models are not supported"
+SDXL_IOS_MESSAGE = ("SDXL packs are Mac-only for now: SDXL renders only at 1024 px, and "
+                    "--target ios is not supported for it")
 INPAINT_MESSAGE = "inpainting checkpoints (9-channel UNet) are not supported"
 
 
 def generic_unsupported(what: str) -> str:
-    return (f"{what} is not supported: Apple's Core AI diffusion pipelines implement "
-            "SD 1.x, SD 2.x, SD 3.x and FLUX.2 Klein text-to-image only")
+    return (f"{what} is not supported: the converter handles SD 1.x, SD 2.x, SDXL, SD 3.x and "
+            "FLUX.2 Klein text-to-image models only")
 
 
 @dataclass(frozen=True)
 class FamilySpec:
-    family: str            # "sd1" | "sd2" | "sd3" | "flux2"
-    pipeline: str          # app pipeline kind: "stable_diffusion" | "sd3" | "flux2"
-    pipeline_type: str     # coreai_models type: "sd" | "sd3" | "flux2"
+    family: str            # "sd1" | "sd2" | "sdxl" | "sd3" | "flux2"
+    pipeline: str          # app pipeline kind: "stable_diffusion" | "sdxl" | "sd3" | "flux2"
+    pipeline_type: str     # coreai_models type: "sd" | "sd3" | "flux2"; "sdxl" is the converter's own driver
     sizes: tuple[int, ...]
     default_steps: int
     max_steps: int
@@ -43,6 +44,9 @@ class FamilySpec:
 FAMILIES: dict[str, FamilySpec] = {
     "sd1": FamilySpec("sd1", "stable_diffusion", "sd", (512,), 25, 50, 7.5, "dpmpp", "fp16", ("h13",)),
     "sd2": FamilySpec("sd2", "stable_diffusion", "sd", (512, 768), 20, 50, 7.5, "dpmpp", "fp16", ()),
+    # SDXL: 1024 only (512 and 768 were judged unacceptable); 25 steps / guidance 5.0 from the
+    # 2026-10-08 side-by-side test.
+    "sdxl": FamilySpec("sdxl", "sdxl", "sdxl", (1024,), 25, 50, 5.0, "dpmpp", "4bit", ()),
     "sd3": FamilySpec("sd3", "sd3", "sd3", (512, 1024), 28, 50, 4.5, "flow_match_euler", "4bit", ()),
     "flux2": FamilySpec("flux2", "flux2", "flux2", (512, 1024), 4, 8, 1.0, "flow_match_euler", "4bit", ()),
 }
@@ -52,6 +56,7 @@ FAMILIES: dict[str, FamilySpec] = {
 WEIGHT_COMPONENTS: dict[str, tuple[str, ...]] = {
     "sd1": ("text_encoder", "unet", "vae"),
     "sd2": ("text_encoder", "unet", "vae"),
+    "sdxl": ("text_encoder", "text_encoder_2", "unet", "vae"),
     "sd3": ("text_encoder", "text_encoder_2", "transformer", "vae"),
     "flux2": ("text_encoder", "transformer", "vae"),
 }
@@ -61,6 +66,10 @@ WEIGHT_COMPONENTS: dict[str, tuple[str, ...]] = {
 KLEIN_4B_GEOMETRY = {"num_layers": 5, "num_single_layers": 20, "inner_dim": 24 * 128,
                      "joint_attention_dim": 7680}
 SD3_MAX_TESTED_LAYERS = 24  # SD 3.5 Medium; Large has 38
+# SDXL base UNet geometry (a refiner has 2560 projection inputs and no text_encoder).
+SDXL_GEOMETRY = {"in_channels": 4, "cross_attention_dim": 2048, "addition_embed_type": "text_time",
+                 "projection_class_embeddings_input_dim": 2816}
+SDXL_SAMPLE_SIZE = 128
 
 
 @dataclass(frozen=True)
@@ -89,6 +98,7 @@ class ExportPlan:
     clip_skip: int
     prediction_type: str | None
     warnings: list[str] = field(default_factory=list)
+    loras: tuple[dict, ...] = ()  # worker form: {"path", "scale", "name"}
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -105,7 +115,7 @@ def detect_family(tree: Path) -> FamilySpec:
     index = _read_json(tree / "model_index.json")
     cls = str(index.get("_class_name", ""))
     if cls.startswith("StableDiffusionXL"):
-        raise UnsupportedModelError(SDXL_MESSAGE)
+        return _detect_sdxl(tree, cls)
     if "Inpaint" in cls:
         raise UnsupportedModelError(INPAINT_MESSAGE)
     if cls == "StableDiffusionPipeline":
@@ -127,9 +137,35 @@ def detect_family(tree: Path) -> FamilySpec:
     raise UnsupportedModelError(generic_unsupported(cls or "a pipeline without _class_name"))
 
 
+def _detect_sdxl(tree: Path, cls: str) -> FamilySpec:
+    if "Inpaint" in cls:
+        raise UnsupportedModelError(INPAINT_MESSAGE)
+    if "Img2Img" in cls:
+        raise UnsupportedModelError(f"{SDXL_REFINER_MESSAGE}, nor SDXL image-to-image pipelines ({cls})")
+    if "ControlNet" in cls or "Adapter" in cls:
+        raise UnsupportedModelError(generic_unsupported(f"{cls} (ControlNet / adapter)"))
+    if "InstructPix2Pix" in cls:
+        raise UnsupportedModelError(generic_unsupported(f"{cls} (image-to-image)"))
+    if cls != "StableDiffusionXLPipeline":
+        raise UnsupportedModelError(generic_unsupported(cls))
+    unet = _read_json(tree / "unet" / "config.json")
+    if unet.get("in_channels") == 9:
+        raise UnsupportedModelError(INPAINT_MESSAGE)
+    if not (tree / "text_encoder" / "config.json").is_file():
+        raise UnsupportedModelError(SDXL_REFINER_MESSAGE)
+    geometry = {k: unet.get(k) for k in SDXL_GEOMETRY}
+    if geometry != SDXL_GEOMETRY:
+        if unet.get("projection_class_embeddings_input_dim") == 2560:
+            raise UnsupportedModelError(SDXL_REFINER_MESSAGE)
+        raise UnsupportedModelError(generic_unsupported(f"an SDXL UNet with geometry {geometry}"))
+    return FAMILIES["sdxl"]
+
+
 def check_variant(spec: FamilySpec, tree: Path | None, target: str) -> list[str]:
     """Refuse (ios) or warn (macos) on untested variants within a family. Returns warnings."""
     warnings: list[str] = []
+    if spec.family == "sdxl" and target == "ios":
+        raise UnsupportedModelError(SDXL_IOS_MESSAGE)
     if tree is None:
         return warnings
     if spec.family == "sd3":
@@ -153,7 +189,7 @@ def check_variant(spec: FamilySpec, tree: Path | None, target: str) -> list[str]
     return warnings
 
 
-NOMINAL_NATIVE = {"sd1": 512, "sd2": 768, "sd3": 1024, "flux2": 1024}
+NOMINAL_NATIVE = {"sd1": 512, "sd2": 768, "sdxl": 1024, "sd3": 1024, "flux2": 1024}
 
 
 def native_size(spec: FamilySpec, tree: Path | None) -> int:
@@ -167,6 +203,8 @@ def native_size(spec: FamilySpec, tree: Path | None) -> int:
 
 
 def default_size(spec: FamilySpec, tree: Path | None, target: str) -> int:
+    if spec.family == "sdxl":
+        return 1024  # every target
     if target == "ios":
         return 512
     if spec.family == "sd2":
@@ -193,8 +231,11 @@ def validate_tuning(spec: FamilySpec, tuning: Tuning) -> None:
         raise UsageError("--clip-skip must be between 1 and 4")
     if tuning.prediction_type not in (None, "epsilon", "v_prediction"):
         raise UsageError("--prediction-type must be epsilon or v_prediction")
+    if spec.family == "sdxl" and tuning.clip_skip != 1:
+        raise UsageError("--clip-skip does not apply to SDXL: it already conditions on the penultimate "
+                         "text-encoder layer (what 'clip skip 2' means in other tools)")
     if spec.family in ("sd3", "flux2") and not tuning.is_default:
-        raise UsageError("--vae, --clip-skip and --prediction-type apply to SD 1.x / 2.x models only")
+        raise UsageError("--vae, --clip-skip and --prediction-type apply to SD 1.x / 2.x and SDXL models only")
 
 
 def make_plan(spec: FamilySpec, tree: Path | None, target: str, size: int | None, precision: str | None,
@@ -214,6 +255,13 @@ def make_plan(spec: FamilySpec, tree: Path | None, target: str, size: int | None
     if spec.family == "flux2":
         components = (["transformer_512", "text_encoder", "vae_decoder_half"] if size == 512
                       else ["transformer", "text_encoder", "vae_decoder"])
+    elif spec.family == "sdxl":
+        components = ["text_encoder", "text_encoder_2", "unet", "vae_decoder"]
+        native = native_size(spec, tree)
+        if native != size:
+            # The only allowed edge is 1024: trace at sample_size 128 whatever the config says.
+            sample_size = SDXL_SAMPLE_SIZE
+            warnings.append(f"the UNet's sample_size gives {native} px; it is traced at 1024 px")
     else:
         components = (["text_encoder", "text_encoder_2", "transformer", "vae_decoder"] if spec.family == "sd3"
                       else ["text_encoder", "unet", "vae_decoder"])
@@ -268,8 +316,12 @@ def single_file_model_type(path: Path) -> str:
 
 
 def family_for_single_file_type(model_type: str) -> str:
-    if model_type.startswith("xl_") or model_type.startswith("playground"):
-        raise UnsupportedModelError(SDXL_MESSAGE)
+    if model_type == "xl_base":
+        return "sdxl"
+    if model_type == "xl_refiner":
+        raise UnsupportedModelError(SDXL_REFINER_MESSAGE)
+    if model_type.startswith("playground"):
+        raise UnsupportedModelError(generic_unsupported("Playground v2.5"))
     if model_type.startswith("inpainting") or "inpaint" in model_type:
         raise UnsupportedModelError(INPAINT_MESSAGE)
     if model_type == "v1":
@@ -302,4 +354,9 @@ def detect_single_file_family(path: Path) -> str:
                                                             "(a LoRA, embedding or VAE?)"))
         if view[key].shape[1] == 9:
             raise UnsupportedModelError(INPAINT_MESSAGE)
+    if family == "sdxl":
+        key = "model.diffusion_model.input_blocks.0.0.weight"
+        if key not in view or view[key].shape[1] != 4:
+            raise UnsupportedModelError(INPAINT_MESSAGE if key in view and view[key].shape[1] == 9 else
+                                        generic_unsupported("an SDXL checkpoint without a full 4-channel UNet"))
     return family

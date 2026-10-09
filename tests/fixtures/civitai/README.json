@@ -1,0 +1,17 @@
+{
+ "note": "Trimmed Civitai API responses (ids 1188071/1408658, 118427/128461, 120096/135931) and hand-made variants (ids 9000xx).",
+ "variants": {
+  "900001": "pickle only",
+  "900002": "int8 only",
+  "900003": "Inpainting",
+  "900004": "Flux.2 Klein 9B",
+  "900005": "LoCon",
+  "900006": "SD 1.5 LoRA",
+  "900007": "usageControl Generation",
+  "900008": "no SHA256",
+  "900009": "Pony LoRA",
+  "900010": "unpublished first version of model 900110",
+  "900011": "published second version",
+  "900012": "mixed files"
+ }
+}

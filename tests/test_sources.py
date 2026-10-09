@@ -166,3 +166,140 @@ def test_fetch_vae_keeps_local_paths_and_refuses_garbage(tmp_path):
     assert sources.fetch_vae(str(vae)) == str(vae)
     with pytest.raises(UsageError):
         sources.fetch_vae("not a hub id")
+
+
+# --- Civitai and SDXL ---------------------------------------------------------------------------
+
+ANIMAGINE_LISTING = [
+    ".gitattributes", "README.md", "animagine-xl-4.0-opt.safetensors", "animagine-xl-4.0.safetensors",
+    "model_index.json", "scheduler/scheduler_config.json", "text_encoder/config.json", "text_encoder/model.safetensors",
+    "text_encoder_2/config.json", "text_encoder_2/model.safetensors", "tokenizer/merges.txt",
+    "tokenizer/special_tokens_map.json", "tokenizer/tokenizer_config.json", "tokenizer/vocab.json",
+    "tokenizer_2/merges.txt", "tokenizer_2/special_tokens_map.json", "tokenizer_2/tokenizer_config.json",
+    "tokenizer_2/vocab.json", "unet/config.json", "unet/diffusion_pytorch_model.safetensors", "vae/config.json",
+    "vae/diffusion_pytorch_model.safetensors",
+]
+
+
+def test_classify_civitai():
+    assert sources.classify("civitai:1188071@1408658") == "civitai"
+    assert sources.classify("https://civitai.com/models/1188071") == "civitai"
+
+
+def test_sdxl_download_filter_on_the_animagine_listing():
+    files = sources.select_download_files(ANIMAGINE_LISTING, "sdxl")
+    assert "animagine-xl-4.0.safetensors" not in files and "animagine-xl-4.0-opt.safetensors" not in files
+    assert {"vae/config.json", "vae/diffusion_pytorch_model.safetensors", "text_encoder_2/model.safetensors",
+            "tokenizer_2/vocab.json", "unet/diffusion_pytorch_model.safetensors"} <= set(files)
+
+
+def _sdxl_ckpt(tmp_path, *extra, text_encoders=True):
+    import torch
+    from safetensors.torch import save_file
+
+    state = {"model.diffusion_model.input_blocks.0.0.weight": torch.zeros(2, 4, 3, 3)}
+    if text_encoders:
+        state["conditioner.embedders.0.transformer.text_model.final_layer_norm.weight"] = torch.zeros(2)
+    for k in extra:
+        state[k] = torch.zeros(1)
+    p = tmp_path / "xl.safetensors"
+    save_file(state, str(p))
+    return p
+
+
+class _FakeXL:
+    def __init__(self, calls):
+        from diffusers import EulerDiscreteScheduler
+
+        self.calls = calls
+        self.scheduler = EulerDiscreteScheduler(prediction_type="epsilon")
+
+    def save_pretrained(self, path, safe_serialization=True):
+        self.scheduler.save_pretrained(Path(path) / "scheduler")
+        Path(path, "model_index.json").write_text("{}")
+
+
+def _patch_xl(monkeypatch, calls):
+    import diffusers
+
+    def from_single_file(path, **kw):
+        calls["single"] = kw
+        return _FakeXL(calls)
+
+    def from_pretrained(base, **kw):
+        calls["pretrained"] = (base, kw)
+        return _FakeXL(calls)
+
+    monkeypatch.setattr(diffusers.StableDiffusionXLPipeline, "from_single_file", staticmethod(from_single_file))
+    monkeypatch.setattr(diffusers.StableDiffusionXLPipeline, "from_pretrained", staticmethod(from_pretrained))
+    monkeypatch.setattr(diffusers.UNet2DConditionModel, "from_single_file",
+                        staticmethod(lambda path, **kw: calls.setdefault("unet", kw) and "unet"))
+    monkeypatch.setattr(sources, "load_single_file_sdxl_text_encoders", lambda *a: ("te1", "te2"))
+
+
+def _probe(path):
+    return sources.SourceProbe(kind="single_file", ref=path.name, spec=sources.FAMILIES["sdxl"], config_tree=None,
+                               path=path)
+
+
+def _saved_prediction(tree):
+    import json
+
+    return json.loads((tree / "scheduler" / "scheduler_config.json").read_text())["prediction_type"]
+
+
+def test_sdxl_single_file_v_pred_key_sets_v_prediction(tmp_path, monkeypatch):
+    calls = {}
+    _patch_xl(monkeypatch, calls)
+    path = _sdxl_ckpt(tmp_path, "v_pred")
+    resolved = sources.resolve_source(_probe(path), base=None, work_dir=tmp_path / "w", pack_id="xl")
+    assert resolved.prediction_type == "v_prediction" and _saved_prediction(resolved.tree) == "v_prediction"
+    assert calls["single"]["config"] == "stabilityai/stable-diffusion-xl-base-1.0"
+    assert calls["single"]["text_encoder"] == "te1" and calls["single"]["text_encoder_2"] == "te2"
+    assert resolved.notes == ()
+
+
+def test_sdxl_explicit_prediction_type_wins(tmp_path, monkeypatch):
+    _patch_xl(monkeypatch, {})
+    path = _sdxl_ckpt(tmp_path, "v_pred")
+    resolved = sources.resolve_source(_probe(path), base=None, work_dir=tmp_path / "w", pack_id="xl",
+                                      prediction_type="epsilon")
+    assert resolved.prediction_type == "epsilon" and _saved_prediction(resolved.tree) == "epsilon"
+
+
+def test_sdxl_ztsnr_key_warns_and_notes(tmp_path, monkeypatch, caplog):
+    _patch_xl(monkeypatch, {})
+    path = _sdxl_ckpt(tmp_path, "v_pred", "ztsnr")
+    resolved = sources.resolve_source(_probe(path), base=None, work_dir=tmp_path / "w", pack_id="xl")
+    assert "zero-terminal-SNR" in caplog.text and any("Zero-terminal-SNR" in n for n in resolved.notes)
+
+
+def test_unet_only_sdxl_file_needs_base(tmp_path, monkeypatch):
+    calls = {}
+    _patch_xl(monkeypatch, calls)
+    path = _sdxl_ckpt(tmp_path, text_encoders=False)
+    with pytest.raises(UsageError, match="--base"):
+        sources.resolve_source(_probe(path), base=None, work_dir=tmp_path / "w", pack_id="xl")
+    resolved = sources.resolve_source(_probe(path), base="org/sdxl-base", work_dir=tmp_path / "w2", pack_id="xl")
+    assert calls["pretrained"][0] == "org/sdxl-base" and calls["pretrained"][1]["unet"] == "unet"
+    assert calls["unet"]["subfolder"] == "unet" and resolved.prediction_type == "epsilon"
+
+
+def test_slow_tokenizer_files_are_written_from_tokenizer_json(tmp_path):
+    """transformers 5 saves only tokenizer.json; the app's BPE tokenizer needs vocab.json,
+    merges.txt and (for SDXL's pad token) special_tokens_map.json."""
+    import json
+
+    tok = tmp_path / "tokenizer_2"
+    tok.mkdir()
+    (tok / "tokenizer.json").write_text(json.dumps({"model": {
+        "type": "BPE", "vocab": {"a": 0, "b": 1, "ab</w>": 2}, "merges": [["a", "b</w>"], "a b"]}}))
+    (tok / "tokenizer_config.json").write_text(json.dumps({"pad_token": "!", "bos_token": "<s>", "x": 1}))
+    other = tmp_path / "tokenizer"
+    other.mkdir()
+    (other / "vocab.json").write_text("{}")
+    (other / "merges.txt").write_text("#version: 0.2\n")
+    assert sources.ensure_slow_tokenizer_files(tmp_path) == ["tokenizer_2"]
+    assert json.loads((tok / "vocab.json").read_text()) == {"a": 0, "b": 1, "ab</w>": 2}
+    assert (tok / "merges.txt").read_text() == "#version: 0.2\na b</w>\na b\n"
+    assert json.loads((tok / "special_tokens_map.json").read_text()) == {"bos_token": "<s>", "pad_token": "!"}

@@ -9,6 +9,7 @@ EXIT_USAGE = 2
 EXIT_UNSUPPORTED = 3
 EXIT_EXPORT = 4
 EXIT_VALIDATION = 5
+EXIT_DOWNLOAD = 6
 
 
 class ConverterError(Exception):
@@ -37,3 +38,9 @@ class ValidationError(ConverterError):
     """The written pack failed its own validation (exit 5)."""
 
     exit_code = EXIT_VALIDATION
+
+
+class DownloadError(ConverterError):
+    """A download failed, was refused or did not match its published hash (exit 6)."""
+
+    exit_code = EXIT_DOWNLOAD

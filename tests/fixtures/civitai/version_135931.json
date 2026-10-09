@@ -1,0 +1,34 @@
+{
+ "id": 135931,
+ "modelId": 120096,
+ "name": "v1.1",
+ "baseModel": "SDXL 1.0",
+ "baseModelType": "Standard",
+ "status": "Published",
+ "usageControl": "Download",
+ "trainedWords": [],
+ "model": {
+  "name": "Pixel Art XL",
+  "type": "LORA",
+  "nsfw": false,
+  "poi": false
+ },
+ "files": [
+  {
+   "id": 99321,
+   "name": "pixel-art-xl-v1.1.safetensors",
+   "sizeKB": 166545.94921875,
+   "type": "Model",
+   "metadata": {
+    "format": "SafeTensor"
+   },
+   "hashes": {
+    "AutoV2": "BBF3D8DEFB",
+    "SHA256": "BBF3D8DEFBFB3FB71331545225C0CF50C74A748D2525F7C19EBB8F74445DE274"
+   },
+   "primary": true,
+   "downloadUrl": "https://civitai.com/api/download/models/135931?fileId=99321"
+  }
+ ],
+ "downloadUrl": "https://civitai.com/api/download/models/135931"
+}

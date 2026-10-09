@@ -38,13 +38,15 @@ ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,47}$")
 COMPONENT_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
-FAMILY_PIPELINE = {"sd1": "stable_diffusion", "sd2": "stable_diffusion", "sd3": "sd3", "flux2": "flux2"}
-FAMILY_SIZES = {"sd1": (512,), "sd2": (512, 768), "sd3": (512, 1024), "flux2": (512, 1024)}
+FAMILY_PIPELINE = {"sd1": "stable_diffusion", "sd2": "stable_diffusion", "sdxl": "sdxl", "sd3": "sd3",
+                   "flux2": "flux2"}
+FAMILY_SIZES = {"sd1": (512,), "sd2": (512, 768), "sdxl": (1024,), "sd3": (512, 1024), "flux2": (512, 1024)}
 FLUX2_SIZE_ASSETS = {
     512: ("Transformer_512.aimodel", "VAEDecoder_half.aimodel"),
     1024: ("Transformer.aimodel", "VAEDecoder.aimodel"),
 }
-METADATA_TYPE = {"stable_diffusion": "stable-diffusion", "sd3": "stable-diffusion-3", "flux2": "flux2"}
+METADATA_TYPE = {"stable_diffusion": "stable-diffusion", "sdxl": "stable-diffusion-xl", "sd3": "stable-diffusion-3",
+                 "flux2": "flux2"}
 SCHEDULERS = ("dpmpp", "pndm", "flow_match_euler")
 PRECISIONS = ("fp16", "4bit")
 TARGETS = ("ios", "macos")
@@ -293,11 +295,11 @@ def check_metadata_json(pack: dict, metadata: Any) -> None:
     expected_type = METADATA_TYPE[pack["pipeline"]]
     if diffusion.get("type") != expected_type:
         raise PackError("metadata_mismatch", f"diffusion.type is not {expected_type}")
-    if pack["family"] in ("sd1", "sd2", "sd3"):
+    if pack["family"] in ("sd1", "sd2", "sdxl", "sd3"):
         image_size = diffusion.get("image_size")
         if not _is_int(image_size) or image_size != pack["default_size"]:
             raise PackError("metadata_mismatch", "diffusion.image_size differs from default_size")
-    if pack["family"] in ("sd1", "sd2"):
+    if pack["family"] in ("sd1", "sd2", "sdxl"):
         if diffusion.get("prediction_type") not in SD_PREDICTION_TYPES:
             raise PackError("metadata_mismatch", "diffusion.prediction_type")
 

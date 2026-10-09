@@ -1,0 +1,45 @@
+{
+ "id": 900101,
+ "name": "Example Checkpoint 900101",
+ "type": "Checkpoint",
+ "nsfw": false,
+ "allowNoCredit": true,
+ "allowCommercialUse": [
+  "Image"
+ ],
+ "allowDerivatives": true,
+ "allowDifferentLicense": true,
+ "availability": "Public",
+ "creator": {
+  "username": "example-creator"
+ },
+ "modelVersions": [
+  {
+   "id": 900001,
+   "name": "pickle only",
+   "baseModel": "SDXL 1.0",
+   "baseModelType": "Standard",
+   "status": "Published",
+   "availability": "Public",
+   "files": [
+    {
+     "id": 91,
+     "name": "example.ckpt",
+     "sizeKB": 6775732.4609375,
+     "type": "Model",
+     "metadata": {
+      "format": "PickleTensor",
+      "size": "full",
+      "fp": "fp16"
+     },
+     "hashes": {
+      "AutoV2": "6327ECA98B",
+      "SHA256": "6327ECA98BFB6538DD7A4EDCE22484A1BBC57A8CFF6B11D075D40DA1AFB847AC"
+     },
+     "primary": true,
+     "downloadUrl": "https://civitai.com/api/download/models/1408658?fileId=1310654"
+    }
+   ]
+  }
+ ]
+}

@@ -34,14 +34,17 @@ def worker_plan(plan: ExportPlan, *, tree: Path, pack_id: str, out_root: Path, l
         "sample_size": plan.sample_size,
         "variant": plan.variant,
         "tuning": {"vae": plan.vae, "clip_skip": plan.clip_skip, "prediction_type": plan.prediction_type},
+        "loras": list(plan.loras),
         "licence_name": licence_name,
         "result_path": str(work_dir / RESULT_FILE),
     }
 
 
 def worker_env() -> dict[str, str]:
-    """The worker's environment: offline before huggingface_hub is ever imported there."""
-    return {**os.environ, "HF_HUB_OFFLINE": "1"}
+    """The worker's environment: offline before huggingface_hub is ever imported there, and
+    without the Civitai token (the worker needs no network)."""
+    env = {k: v for k, v in os.environ.items() if k != "CIVITAI_API_TOKEN"}
+    return {**env, "HF_HUB_OFFLINE": "1"}
 
 
 def run_export(tree: Path, plan: ExportPlan, *, pack_id: str, work_dir: Path, licence_name: str,

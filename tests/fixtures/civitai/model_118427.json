@@ -1,0 +1,74 @@
+{
+ "id": 118427,
+ "name": "Perfect Eyes XL",
+ "type": "LORA",
+ "nsfw": false,
+ "allowNoCredit": true,
+ "allowCommercialUse": [
+  "Image",
+  "RentCivit",
+  "Rent",
+  "Sell",
+  "SellMerge"
+ ],
+ "allowDerivatives": true,
+ "allowDifferentLicense": true,
+ "availability": "Public",
+ "creator": {
+  "username": "Deizor"
+ },
+ "modelVersions": [
+  {
+   "id": 128461,
+   "name": "v1.0",
+   "baseModel": "SDXL 1.0",
+   "baseModelType": "Standard",
+   "status": "Published",
+   "availability": "Public",
+   "downloadUrl": "https://civitai.com/api/download/models/128461",
+   "files": [
+    {
+     "id": 92996,
+     "name": "PerfectEyesXL.safetensors",
+     "sizeKB": 223099.60546875,
+     "type": "Model",
+     "metadata": {
+      "format": "SafeTensor"
+     },
+     "hashes": {
+      "AutoV2": "F248364CF0",
+      "SHA256": "F248364CF0ACC7A00BC4B5145B44C0DFBF10E71E9B0EFB6B77F0956AEAF2411C"
+     },
+     "primary": true,
+     "downloadUrl": "https://civitai.com/api/download/models/128461?fileId=92996"
+    }
+   ]
+  },
+  {
+   "id": 842340,
+   "name": "V3_Bloodshot",
+   "baseModel": "SDXL 1.0",
+   "baseModelType": "Standard",
+   "status": "Published",
+   "availability": "Public",
+   "downloadUrl": "https://civitai.com/api/download/models/842340",
+   "files": [
+    {
+     "id": 755885,
+     "name": "PerfectEyesXL_V3_Bloodshot.safetensors",
+     "sizeKB": 223099.94140625,
+     "type": "Model",
+     "metadata": {
+      "format": "SafeTensor"
+     },
+     "hashes": {
+      "AutoV2": "0A71FE0E8C",
+      "SHA256": "0A71FE0E8CF8FB28BC025ED2A25BFB40657DD66C43DBB977967A98CA322C42B8"
+     },
+     "primary": true,
+     "downloadUrl": "https://civitai.com/api/download/models/842340?fileId=755885"
+    }
+   ]
+  }
+ ]
+}

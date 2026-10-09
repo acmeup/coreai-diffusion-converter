@@ -1,0 +1,336 @@
+{
+ "pack": {
+  "format": "caipack",
+  "format_version": 1,
+  "id": "sdxl-sample-1024",
+  "name": "Sample SDXL 1024",
+  "description": "",
+  "family": "sdxl",
+  "pipeline": "sdxl",
+  "target": "macos",
+  "supported_sizes": [
+   1024
+  ],
+  "default_size": 1024,
+  "default_steps": 25,
+  "max_steps": 50,
+  "guidance_scale": 5.0,
+  "scheduler": "dpmpp",
+  "precision": "4bit",
+  "compute_precision": "float16",
+  "lazy_model_loading": true,
+  "excluded_architectures": [],
+  "assets": [
+   "TextEncoder.aimodel",
+   "TextEncoder2.aimodel",
+   "Unet.aimodel",
+   "VAEDecoder.aimodel",
+   "metadata.json",
+   "tokenizer/merges.txt",
+   "tokenizer/special_tokens_map.json",
+   "tokenizer/tokenizer_config.json",
+   "tokenizer/vocab.json",
+   "tokenizer_2/merges.txt",
+   "tokenizer_2/special_tokens_map.json",
+   "tokenizer_2/tokenizer_config.json",
+   "tokenizer_2/vocab.json"
+  ],
+  "source": {
+   "kind": "hf",
+   "ref": "example-org/example-sdxl",
+   "revision": "0000000000000000000000000000000000000000"
+  },
+  "conversion": {
+   "clip_skip": 1,
+   "vae": null,
+   "prediction_type": "epsilon",
+   "vae_precision": "float32"
+  },
+  "license": {
+   "name": "CreativeML Open RAIL++-M",
+   "file": "LICENSE",
+   "notice_file": null
+  },
+  "attribution": "",
+  "converter": {
+   "name": "coreai-diffusion-converter",
+   "version": "0.2.0",
+   "exporter": "apple/coreai-models@7359dbcf6c3b"
+  },
+  "created_at": "2026-10-09T12:00:00Z",
+  "files": [
+   {
+    "path": "CHANGES.md",
+    "size": 500,
+    "sha256": "d975bf659606195d2165918f93e1cf680ef68ea3c9cab994f033705fea8238b2"
+   },
+   {
+    "path": "LICENSE",
+    "size": 2000,
+    "sha256": "c693279643b8cd5d248172d9c22cb7cf4ed163a3c98c8a3f69c2717edd3eacb7"
+   },
+   {
+    "path": "TextEncoder.aimodel/main.hash",
+    "size": 64,
+    "sha256": "5211e76971a2fc3305a0da45666acecaf929c8210a98446a2b3496f27f1a6e46"
+   },
+   {
+    "path": "TextEncoder.aimodel/main.mlirb",
+    "size": 1000,
+    "sha256": "a24d3060eaec5e7ea690c38796aaf15315e905e9a8788b7cee02b4c0abb83736"
+   },
+   {
+    "path": "TextEncoder.aimodel/metadata.json",
+    "size": 200,
+    "sha256": "4ee12dd03aa142d46099647dfabf9eec4bc41a116a281a1e04c74086e801cc2e"
+   },
+   {
+    "path": "TextEncoder2.aimodel/main.hash",
+    "size": 64,
+    "sha256": "c49ad53f26489c44f795bacc8b2d61e0d51706447128bb1b502c4ec8cc067bbc"
+   },
+   {
+    "path": "TextEncoder2.aimodel/main.mlirb",
+    "size": 1000,
+    "sha256": "0535776c1e486391176eb33ce2571daad57567e28b44ed04d9223d4d8e8c3a89"
+   },
+   {
+    "path": "TextEncoder2.aimodel/metadata.json",
+    "size": 200,
+    "sha256": "54c459b0e277c7a6d9b45333566b217d7dd7d43c6a2c2d18af13b29510b47cec"
+   },
+   {
+    "path": "Unet.aimodel/main.hash",
+    "size": 64,
+    "sha256": "1f12cce46817dfe96363ec981cbce33de650052612a3a6f5477db20a9a702d06"
+   },
+   {
+    "path": "Unet.aimodel/main.mlirb",
+    "size": 1000,
+    "sha256": "6dcb554a3cb9618ef63052d4d34fece197bc43170370b1928778e8bfc2629b96"
+   },
+   {
+    "path": "Unet.aimodel/metadata.json",
+    "size": 200,
+    "sha256": "d4764763f5cc5cdb9700ae4095bd50c8955d1cbc1a8a47551ba6a7ab83b8ebe0"
+   },
+   {
+    "path": "VAEDecoder.aimodel/main.hash",
+    "size": 64,
+    "sha256": "5f6d4d9b661bb38521a727c54692bdcc19657151fd58b03f81586b9317b25d88"
+   },
+   {
+    "path": "VAEDecoder.aimodel/main.mlirb",
+    "size": 1000,
+    "sha256": "186674ada4421819f63d80f0a9cb0efb97bdc2246019578901a93c6d072842f5"
+   },
+   {
+    "path": "VAEDecoder.aimodel/metadata.json",
+    "size": 200,
+    "sha256": "68275e7c54adb7c179a2899fc3b384e2524d88d24d179ca5ff891e001a36f959"
+   },
+   {
+    "path": "metadata.json",
+    "size": 900,
+    "sha256": "12e598daecade60b04e493f45c134fec9287ac7471114d95d1995b4fb651a6c8"
+   },
+   {
+    "path": "tokenizer/merges.txt",
+    "size": 300,
+    "sha256": "ebbb0f71ea9aae2ff81413c822c3af2cd9f722d06af664b65c3f7ace27c67126"
+   },
+   {
+    "path": "tokenizer/special_tokens_map.json",
+    "size": 300,
+    "sha256": "9a6c011314370a9e65781822e1c2f8fef37559072ac4cbbc2c92ed66660e5874"
+   },
+   {
+    "path": "tokenizer/tokenizer_config.json",
+    "size": 300,
+    "sha256": "47a6faaf45c44a835738a0ee380db277b2a4db36d56b190b20a369c3f5ad72b0"
+   },
+   {
+    "path": "tokenizer/vocab.json",
+    "size": 300,
+    "sha256": "8c35116cc348b481efa4315e1dd4992cc40fbbe8c5015b42e568e9ce3b1d12ef"
+   },
+   {
+    "path": "tokenizer_2/merges.txt",
+    "size": 300,
+    "sha256": "e9a738732312c36085a99aff4a11eaefe15bca7c52639faadcff7dd3f257c400"
+   },
+   {
+    "path": "tokenizer_2/special_tokens_map.json",
+    "size": 300,
+    "sha256": "d9a3373af2f189a06360bf24a1a6bc1c177832073c34ce39e1cf8a3591629a83"
+   },
+   {
+    "path": "tokenizer_2/tokenizer_config.json",
+    "size": 300,
+    "sha256": "25c5334061ccc330f49803a7b4bae76a12edc33259964f998b0b146c48b55b4d"
+   },
+   {
+    "path": "tokenizer_2/vocab.json",
+    "size": 300,
+    "sha256": "2b33c0cb853f07f33e8756e9678ea3a2eaa2d70346d158e282ed546ade8b07fc"
+   }
+  ]
+ },
+ "metadata": {
+  "metadata_version": "0.2",
+  "kind": "diffusion",
+  "name": "sdxl-sample-1024",
+  "diffusion": {
+   "type": "stable-diffusion-xl",
+   "image_size": 1024,
+   "prediction_type": "epsilon",
+   "force_zeros_for_empty_prompt": true
+  }
+ },
+ "entries": [
+  {
+   "path": "pack.json",
+   "size": 4000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "CHANGES.md",
+   "size": 500,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "LICENSE",
+   "size": 2000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "TextEncoder.aimodel/main.hash",
+   "size": 64,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "TextEncoder.aimodel/main.mlirb",
+   "size": 1000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "TextEncoder.aimodel/metadata.json",
+   "size": 200,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "TextEncoder2.aimodel/main.hash",
+   "size": 64,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "TextEncoder2.aimodel/main.mlirb",
+   "size": 1000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "TextEncoder2.aimodel/metadata.json",
+   "size": 200,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "Unet.aimodel/main.hash",
+   "size": 64,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "Unet.aimodel/main.mlirb",
+   "size": 1000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "Unet.aimodel/metadata.json",
+   "size": 200,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "VAEDecoder.aimodel/main.hash",
+   "size": 64,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "VAEDecoder.aimodel/main.mlirb",
+   "size": 1000,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "VAEDecoder.aimodel/metadata.json",
+   "size": 200,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "metadata.json",
+   "size": 900,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer/merges.txt",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer/special_tokens_map.json",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer/tokenizer_config.json",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer/vocab.json",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer_2/merges.txt",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer_2/special_tokens_map.json",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer_2/tokenizer_config.json",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  },
+  {
+   "path": "tokenizer_2/vocab.json",
+   "size": 300,
+   "is_regular_file": true,
+   "is_compressed": false
+  }
+ ]
+}

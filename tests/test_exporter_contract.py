@@ -120,3 +120,51 @@ def test_wrap_metadata_sets_licence():
 
     md = W.wrap_metadata(original, "CreativeML OpenRAIL-M")("p", component="Unet")
     assert md.license == "CreativeML OpenRAIL-M" and md.author == ""
+
+
+# --- the SDXL driver reaches these as attributes of the pipeline module ------------------------
+
+
+def test_sdxl_driver_symbols_are_pinned():
+    params = list(inspect.signature(P.export_stateless).parameters)
+    assert params[:4] == ["wrapper", "dummy_inputs", "input_names", "output_names"]
+    assert inspect.iscoroutinefunction(P.apply_mlir_quantization)
+    assert P._resolve_compression("4bit") == {"type": "int4", "symmetric": True, "granularity": "per_block",
+                                              "block_size": 32}
+    assert P._resolve_compression("none") is None
+    assert list(inspect.signature(P.build_aimodel_metadata).parameters)[:2] == ["hf_model_id", "component"]
+    assert list(inspect.signature(P._write_metadata_json).parameters)[:6] == [
+        "hf_pipe", "model_id", "pipeline_type", "output_path", "compression", "exported_assets"]
+    sd_config = inspect.getsource(P._build_sd_config)
+    assert "scaling_factor" in sd_config and "sample_size" in sd_config and "prediction_type" in sd_config
+    assert "tokenizer_2" in inspect.getsource(P._save_tokenizer)
+    assert "snapshot_download(" in inspect.getsource(P._save_tokenizer)
+
+
+def test_sdxl_component_helpers_exist():
+    import coreai_models.diffusion.components as C
+
+    assert callable(C._patch_nearest_upsample)
+    assert list(inspect.signature(C.VAEDecoderWrapper.forward).parameters) == ["self", "z"]
+
+
+def test_lora_methods_exist_on_every_pipeline_class():
+    import diffusers
+
+    for name in ("StableDiffusionPipeline", "StableDiffusionXLPipeline", "StableDiffusion3Pipeline",
+                 "Flux2KleinPipeline"):
+        cls = getattr(diffusers, name)
+        for method in ("load_lora_weights", "fuse_lora", "unload_lora_weights"):
+            assert hasattr(cls, method), (name, method)
+    assert "adapter_names" in inspect.signature(diffusers.StableDiffusionXLPipeline.fuse_lora).parameters
+
+
+def test_worker_plan_carries_loras(tmp_path):
+    plan = ExportPlan(spec=FAMILIES["sdxl"], target="macos", size=1024, precision="4bit",
+                      components=["text_encoder", "text_encoder_2", "unet", "vae_decoder"], multifunction=False,
+                      sample_size=None, compression="4bit", variant=None, vae=None, clip_skip=1, prediction_type=None,
+                      loras=({"path": "/x/a.safetensors", "scale": 0.8, "name": "a.safetensors"},))
+    spec = exporter.worker_plan(plan, tree=tmp_path, pack_id="p", out_root=tmp_path, licence_name="L",
+                                work_dir=tmp_path)
+    assert spec["loras"] == [{"path": "/x/a.safetensors", "scale": 0.8, "name": "a.safetensors"}]
+    assert spec["family"] == "sdxl"

@@ -48,6 +48,7 @@
       "enum": [
         "sd1",
         "sd2",
+        "sdxl",
         "sd3",
         "flux2"
       ]
@@ -55,6 +56,7 @@
     "pipeline": {
       "enum": [
         "stable_diffusion",
+        "sdxl",
         "sd3",
         "flux2"
       ]
@@ -138,7 +140,8 @@
           "enum": [
             "hf",
             "folder",
-            "single_file"
+            "single_file",
+            "civitai"
           ]
         },
         "ref": {
@@ -149,6 +152,42 @@
             "string",
             "null"
           ]
+        },
+        "file_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "base_model": {
+          "type": "string"
+        },
+        "permissions": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "allow_no_credit": {
+              "type": "boolean"
+            },
+            "allow_commercial_use": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "allow_derivatives": {
+              "type": "boolean"
+            },
+            "allow_different_license": {
+              "type": "boolean"
+            }
+          }
+        },
+        "verified": {
+          "type": "boolean"
         }
       }
     },
@@ -170,6 +209,90 @@
           "enum": [
             "epsilon",
             "v_prediction",
+            null
+          ]
+        },
+        "loras": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "sha256",
+              "scale",
+              "source"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "scale": {
+                "type": "number"
+              },
+              "source": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "file",
+                      "hf",
+                      "civitai"
+                    ]
+                  },
+                  "ref": {
+                    "type": "string"
+                  },
+                  "revision": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "trained_words": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "permissions": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "properties": {
+                  "allow_no_credit": {
+                    "type": "boolean"
+                  },
+                  "allow_commercial_use": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "allow_derivatives": {
+                    "type": "boolean"
+                  },
+                  "allow_different_license": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "verified": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "vae_precision": {
+          "enum": [
+            "float16",
+            "float32",
             null
           ]
         }

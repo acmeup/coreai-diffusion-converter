@@ -1,0 +1,106 @@
+{
+ "id": 1188071,
+ "name": "Animagine XL 4.0",
+ "type": "Checkpoint",
+ "nsfw": false,
+ "allowNoCredit": true,
+ "allowCommercialUse": [
+  "Image",
+  "RentCivit",
+  "Rent",
+  "Sell",
+  "SellMerge"
+ ],
+ "allowDerivatives": true,
+ "allowDifferentLicense": true,
+ "availability": "Public",
+ "creator": {
+  "username": "CagliostroLab"
+ },
+ "modelVersions": [
+  {
+   "id": 1408658,
+   "name": "v4 Opt",
+   "baseModel": "SDXL 1.0",
+   "baseModelType": "Standard",
+   "status": "Published",
+   "availability": "Public",
+   "downloadUrl": "https://civitai.com/api/download/models/1408658",
+   "files": [
+    {
+     "id": 1310654,
+     "name": "animagineXL40_v4Opt.safetensors",
+     "sizeKB": 6775732.4609375,
+     "type": "Model",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "fp16"
+     },
+     "hashes": {
+      "AutoV2": "6327ECA98B",
+      "SHA256": "6327ECA98BFB6538DD7A4EDCE22484A1BBC57A8CFF6B11D075D40DA1AFB847AC"
+     },
+     "primary": true,
+     "downloadUrl": "https://civitai.com/api/download/models/1408658?fileId=1310654"
+    }
+   ]
+  },
+  {
+   "id": 1409042,
+   "name": "v4 Zero",
+   "baseModel": "SDXL 1.0",
+   "baseModelType": "Standard",
+   "status": "Published",
+   "availability": "Public",
+   "downloadUrl": "https://civitai.com/api/download/models/1409042",
+   "files": [
+    {
+     "id": 1311158,
+     "name": "animagineXL40_v4Zero.safetensors",
+     "sizeKB": 6776429.4921875,
+     "type": "Model",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "fp16"
+     },
+     "hashes": {
+      "AutoV2": "F15812E65C",
+      "SHA256": "F15812E65C2EA7F4E19CE37FB2A8445EB65C64DA450A508DD9C8F237C73F6BB8"
+     },
+     "primary": true,
+     "downloadUrl": "https://civitai.com/api/download/models/1409042?fileId=1311158"
+    }
+   ]
+  },
+  {
+   "id": 1337429,
+   "name": "v4.0",
+   "baseModel": "SDXL 1.0",
+   "baseModelType": "Standard",
+   "status": "Published",
+   "availability": "Public",
+   "downloadUrl": "https://civitai.com/api/download/models/1337429",
+   "files": [
+    {
+     "id": 1241336,
+     "name": "animagineXL40_v40.safetensors",
+     "sizeKB": 6775814.5078125,
+     "type": "Model",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "fp16"
+     },
+     "hashes": {
+      "AutoV2": "1D5B43FF75",
+      "SHA256": "1D5B43FF75B6AB598502D4C779D2FBFA3DCECA51C60C3B609640A60772333916"
+     },
+     "primary": true,
+     "downloadUrl": "https://civitai.com/api/download/models/1337429?fileId=1241336"
+    }
+   ]
+  }
+ ]
+}

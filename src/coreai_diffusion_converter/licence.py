@@ -28,6 +28,16 @@ STABILITY_ATTRIBUTION = "Powered by Stability AI"
 
 MISSING_MESSAGE = ("a licence file is required; pass --license-file, or --allow-missing-license "
                    "to pack without one")
+CIVITAI_MISSING_MESSAGE = (MISSING_MESSAGE + ". Civitai's API carries no licence text; pass the model's "
+                           "licence with --license-file (and --license-name).")
+LORA_TERMS_LINE = ("LoRA weights were fused into the model before export; each LoRA's own terms apply in "
+                   "addition to the model licence (see NOTICE).")
+SDXL_VAE_LINE = "VAE decoder: float32 weights and compute (the stock SDXL VAE overflows in float16)"
+
+
+def derivatives_warning(name: str) -> str:
+    return (f"{name}: the creator does not allow derivatives; a converted or merged pack is a derivative. "
+            "Keep it for your own use.")
 
 
 def discover(directory: Path | None, candidates: tuple[str, ...] = LICENCE_CANDIDATES) -> Path | None:
@@ -89,6 +99,7 @@ class LicenceInfo:
     notice_file: str | None = None   # "NOTICE" once written
     attribution: str = ""
     warnings: list[str] = field(default_factory=list)
+    extra_notice: list[str] = field(default_factory=list)  # e.g. Civitai permission summaries
 
 
 def resolve(*, licence_file: Path | None, licence_dir: Path | None, name_override: str | None,
@@ -119,6 +130,7 @@ def write_files(info: LicenceInfo, bundle: Path) -> LicenceInfo:
         notice_parts.append(f"{STABILITY_NOTICE}\n\n{STABILITY_ATTRIBUTION}\n")
     if info.notice_source is not None:
         notice_parts.append(info.notice_source.read_text(encoding="utf-8", errors="replace"))
+    notice_parts += info.extra_notice
     if notice_parts:
         (bundle / "NOTICE").write_text("\n".join(notice_parts), encoding="utf-8")
         info.notice_file = "NOTICE"
@@ -137,6 +149,9 @@ class ChangesInfo:
     prediction_type: str | None
     prediction_type_overridden: bool
     family: str
+    loras: tuple[dict, ...] = ()       # pack.json conversion.loras entries
+    notes: tuple[str, ...] = ()        # extra lines (warnings the user should keep with the pack)
+    vae_precision: str | None = None   # "float32" for SDXL
 
 
 def changes_text(info: ChangesInfo) -> str:
@@ -159,6 +174,19 @@ def changes_text(info: ChangesInfo) -> str:
     if info.prediction_type:
         how = "set explicitly" if info.prediction_type_overridden else "as configured"
         lines.append(f"- Prediction type: {info.prediction_type} ({how})")
+    if info.vae_precision == "float32":
+        lines.append(f"- {SDXL_VAE_LINE}")
+    for lo in info.loras:
+        src = lo.get("source") or {}
+        lines.append(f"- LoRA merged: {lo.get('name')} (sha256 {str(lo.get('sha256', ''))[:12]}), "
+                     f"scale {lo.get('scale'):g}, from {src.get('kind')} {src.get('ref')}")
+        words = [w for w in lo.get("trained_words") or [] if w]
+        if words:
+            lines.append(f"  trigger words: {', '.join(words)}")
+    for note in info.notes:
+        lines.append(f"- {note}")
+    if info.loras:
+        lines += ["", LORA_TERMS_LINE]
     dropped = ["safety checker", "feature extractor", "VAE encoder"]
     if info.family == "sd3":
         dropped.append("T5 text encoder (text_encoder_3)")
